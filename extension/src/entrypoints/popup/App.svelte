@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { IconBrandGithub, IconBrandTelegram } from '@tabler/icons-svelte'
+  import IconBrandGithub from '@tabler/icons-svelte/icons/brand-github'
+  import IconBrandTelegram from '@tabler/icons-svelte/icons/brand-telegram'
   import { onMount } from 'svelte'
   import { sendMessage } from '../../messaging'
   import { Progress } from '@skeletonlabs/skeleton-svelte'
