@@ -18,7 +18,7 @@
     "lint": "pnpm check"
   },
   "devDependencies": {
-    "@skeletonlabs/skeleton": "^4.13.0",
+    "@skeletonlabs/skeleton": "^4.14.0",
     "@skeletonlabs/skeleton-svelte": "^4.13.0",
     "@tsconfig/svelte": "^5.0.8",
     "@wxt-dev/module-svelte": "^2.0.4",
