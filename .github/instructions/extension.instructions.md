@@ -1,6 +1,6 @@
 ---
 description: "Use when working with browser extension."
-applyTo: "src/extension/**"
+applyTo: "extension/**"
 ---
 
 # Implementation Rules
@@ -19,7 +19,7 @@ applyTo: "src/extension/**"
 
 ## Required finish gate
 
-- Run all commands from `src/extension` after changes:
+- Run all commands from `extension` after changes:
   - `pnpm format`
   - `pnpm lint`
   - `pnpm build` and `pnpm build:firefox`

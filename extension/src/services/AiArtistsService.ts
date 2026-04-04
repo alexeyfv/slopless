@@ -10,7 +10,7 @@ class AiArtistsService {
   private readonly STORAGE_KEY = 'ai-artists'
   private readonly CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
   private readonly SOURCE_URL =
-    'https://raw.githubusercontent.com/alexeyfv/slopless/refs/heads/main/data/yandex_music.json?token=GHSAT0AAAAAADIORDQ2IG2KYHJRUVUVWNFA2ORJTVA'
+    'https://raw.githubusercontent.com/alexeyfv/slopless/refs/heads/main/data/yandex_music.json'
   private cacheCheckedAt = 0
 
   public async getAiArtists(): Promise<Set<string>> {
