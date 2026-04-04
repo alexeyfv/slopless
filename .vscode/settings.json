@@ -1,0 +1,7 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "pnpm": true,
+    "dotnet": true,
+    "docker": true
+  }
+}
