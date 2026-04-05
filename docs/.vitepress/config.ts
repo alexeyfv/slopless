@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: '/slopless/',
   title: 'Slopless',
   description: 'Keep your music free of AI slop.',
   themeConfig: {
