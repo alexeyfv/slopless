@@ -5,6 +5,15 @@ export default defineConfig({
   base: '/slopless/',
   title: 'Slopless',
   description: 'Keep your music free of AI slop.',
+  head: [
+    [
+      'meta',
+      {
+        name: 'google-site-verification',
+        content: 'L2Lup3bdyxHnWxUd9UZcT7sAdI8f8xsIRDPcm4oUA7Y'
+      }
+    ]
+  ],
   themeConfig: {
     socialLinks: [
       { icon: 'github', link: 'https://github.com/alexeyfv/slopless' },
