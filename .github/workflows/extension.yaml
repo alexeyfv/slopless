@@ -1,0 +1,52 @@
+name: Build extension preview artifacts
+
+on:
+  push:
+    branches: [main]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: extension/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: extension
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Chrome zip
+        working-directory: extension
+        run: pnpm zip
+
+      - name: Build Firefox zip
+        working-directory: extension
+        run: pnpm zip:firefox
+
+      - name: Upload preview artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: slopless-extension-preview
+          path: |
+            extension/.output/slopless-*-chrome.zip
+            extension/.output/slopless-*-firefox.zip
+          if-no-files-found: error
+          retention-days: 14
