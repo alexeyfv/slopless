@@ -2,6 +2,8 @@
 
 Keep your music free of AI slop.
 
+![cover](./cover.png)
+
 ## Local development
 
 ```sh
