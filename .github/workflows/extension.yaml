@@ -3,6 +3,9 @@ name: Build extension preview artifacts
 on:
   push:
     branches: [main]
+    paths:
+      - 'extension/**'
+      - '.github/workflows/extension.yaml'
 
   workflow_dispatch:
 
@@ -45,8 +48,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: slopless-extension-preview
-          path: |
-            extension/.output/slopless-*-chrome.zip
-            extension/.output/slopless-*-firefox.zip
+          path: extension/.output/slopless-*.zip
           if-no-files-found: error
           retention-days: 14
