@@ -1,0 +1,43 @@
+import { defineConfig } from 'vitepress'
+
+// https://vitepress.dev/reference/site-config
+export default defineConfig({
+  title: 'Slopless',
+  description: 'Keep your music free of AI slop.',
+  themeConfig: {
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/alexeyfv/slopless' },
+      {
+        icon: 'telegram',
+        link: 'https://t.me/yet_another_dev'
+      }
+    ]
+  },
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+      title: 'Slopless',
+      description: 'Keep your music free of AI slop.',
+      themeConfig: {
+        nav: [
+          { text: 'Home', link: '/' },
+          { text: 'Privacy', link: '/privacy-policy' }
+        ]
+      }
+    },
+    ru: {
+      label: 'Русский',
+      lang: 'ru',
+      link: '/ru/',
+      title: 'Slopless',
+      description: 'Музыка без нейрослопа.',
+      themeConfig: {
+        nav: [
+          { text: 'Главная', link: '/ru/' },
+          { text: 'Политика конфиденциальности', link: '/ru/privacy-policy' }
+        ]
+      }
+    }
+  }
+})
