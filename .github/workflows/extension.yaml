@@ -48,6 +48,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: slopless-extension-preview
-          path: extension/.output/slopless-*.zip
+          path: |
+            extension/.output/slopless-*-chrome.zip
+            extension/.output/slopless-*-firefox.zip
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
