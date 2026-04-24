@@ -11,7 +11,15 @@ export default defineConfig({
     host_permissions: [
       'https://raw.githubusercontent.com/alexeyfv/slopless/refs/heads/main/data/yandex_music.json',
       'https://music.yandex.com/*'
-    ]
+    ],
+    browser_specific_settings: {
+      gecko: {
+        id: '@slopless',
+        data_collection_permissions: {
+          required: ['none']
+        }
+      }
+    }
   },
   vite: () => ({
     plugins: [tailwindcss()]
