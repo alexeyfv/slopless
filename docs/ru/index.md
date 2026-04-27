@@ -7,11 +7,11 @@ hero:
   tagline: Браузерное расширение для Yandex Music.
   actions:
     - theme: brand
-      text: Chrome Web Store
+      text: Chrome
       link: https://chromewebstore.google.com/detail/slopless/ceehepkmdedlkcgcaocbfjheafkfnaej
-    - theme: alt
-      text: Firefox (скоро)
-      link: '#'
+    - theme: brand
+      text: Firefox
+      link: https://addons.mozilla.org/addon/slopless/
 
 features:
   - title: Маркирует
