@@ -4,13 +4,13 @@ layout: home
 hero:
   name: 'Slopless'
   text: 'Keep your music free of AI slop.'
-  tagline: A browser extension for Yandex Music.
+  tagline: Install the browser extension for Yandex Music for free.
   actions:
     - theme: brand
-      text: Chrome
+      text: Install for Chrome
       link: https://chromewebstore.google.com/detail/slopless/ceehepkmdedlkcgcaocbfjheafkfnaej
     - theme: brand
-      text: Firefox
+      text: Install for Firefox
       link: https://addons.mozilla.org/addon/slopless/
 
 features:

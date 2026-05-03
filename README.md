@@ -2,9 +2,14 @@
 
 Keep your music free of AI slop.
 
-[![Chrome](https://img.shields.io/badge/Chrome-Install_now-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/slopless/ceehepkmdedlkcgcaocbfjheafkfnaej) [![Firefox Web Store](https://img.shields.io/badge/Firefox-Install_now-4285F4?logo=firefoxbrowser&logoColor=white)](https://addons.mozilla.org/addon/slopless/)
-
 ![cover](./cover.png)
+
+## Installation
+
+Install the browser extension for Yandex Music for free.
+
+- [Chrome Web Store](https://chromewebstore.google.com/detail/slopless/ceehepkmdedlkcgcaocbfjheafkfnaej)
+- [Firefox Add-ons](https://addons.mozilla.org/addon/slopless/)
 
 ## Development
 
