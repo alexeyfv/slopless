@@ -1,7 +1,7 @@
 import TrackBlacklistingService from '@/services/TrackBlacklistingService'
 
 export default defineContentScript({
-  matches: ['*://music.yandex.com/*'],
+  matches: ['*://music.yandex.com/*', '*://music.yandex.ru/*'],
   main: async function () {
     const playerBar = document.querySelector(
       'section[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"]'
