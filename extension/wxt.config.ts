@@ -10,7 +10,8 @@ export default defineConfig({
     permissions: ['storage', 'scripting', 'alarms'],
     host_permissions: [
       'https://raw.githubusercontent.com/alexeyfv/slopless/refs/heads/main/data/yandex_music.json',
-      'https://music.yandex.com/*'
+      'https://music.yandex.com/*',
+      'https://music.yandex.ru/*'
     ],
     browser_specific_settings: {
       gecko: {
