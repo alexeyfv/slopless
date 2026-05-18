@@ -1,7 +1,8 @@
+import { MATCHES_DOMAINS } from '@/types/Domains'
 import { ArtistTitleLabelingService } from '../services/ArtistTitleLabelingService'
 
 export default defineContentScript({
-  matches: ['*://music.yandex.com/*'],
+  matches: MATCHES_DOMAINS,
   main: async function () {
     // To display the AI label on the artist page,
     // we need to use a separate algorithm that checks
