@@ -1,5 +1,7 @@
 # Slopless
 
+![Made with AI](https://img.shields.io/badge/Made%20with-AI-lightgrey?style=for-the-badge)
+
 Keep your music free of AI slop.
 
 ![cover](./cover.png)
