@@ -13,11 +13,10 @@ export type Artist = {
 }
 
 /**
- * Handles tracks while they are playing in default player.
+ * Handles tracks while they are playing in My Vibe player.
  */
-export default class DefaultPlayerTrackProcessingService {
-  // Prevents processing the same track multiple times when MutationObserver triggers again after a button click
-  private currentTrackId: string | null = null
+export default class MyVibePlayerTrackProcessingService {
+  private currentTrackText: string | null = null
 
   public async start(): Promise<void> {
     await this.scan()
@@ -39,11 +38,11 @@ export default class DefaultPlayerTrackProcessingService {
   }
 
   protected async scan(): Promise<void> {
-    const playerBar = document.querySelector<HTMLElement>(
-      'section[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"]'
+    const myVibePage = document.querySelector<HTMLElement>(
+      'div[class*="VibePage_meta__"]'
     )
 
-    if (!playerBar) {
+    if (!myVibePage) {
       return
     }
 
@@ -56,7 +55,7 @@ export default class DefaultPlayerTrackProcessingService {
 
     // Collect all artists from the player
     const elements = Array.from(
-      playerBar.querySelectorAll<HTMLAnchorElement>('a[href^="/artist/"]')
+      myVibePage.querySelectorAll<HTMLAnchorElement>('a[href^="/artist/"]')
     )
 
     if (elements.length === 0) {
@@ -65,23 +64,26 @@ export default class DefaultPlayerTrackProcessingService {
 
     const artists = elements.map(this.getArtist)
 
-    const trackElement =
-      playerBar.querySelector<HTMLAnchorElement>('a[href^="/album/"]')
+    const trackElement = myVibePage.querySelector<HTMLAnchorElement>(
+      'div[class*="VibePlayerbarMeta_trackNameText__"]'
+    )
 
     if (!trackElement) {
       console.warn('Track element not found in player bar')
       return
     }
 
-    const trackHref = trackElement.href
-    const i = trackHref.lastIndexOf('/')
-    const trackId = trackHref.substring(i + 1)
+    const trackText = trackElement.textContent || ''
 
-    if (this.currentTrackId === trackId) {
+    if (!trackText) {
       return
     }
 
-    this.currentTrackId = trackId
+    if (this.currentTrackText === trackText) {
+      return
+    }
+
+    this.currentTrackText = trackText
 
     let actionTaken = false
 
@@ -90,19 +92,25 @@ export default class DefaultPlayerTrackProcessingService {
         (await extensionStorage.getItem('ai-action-threshold')) ??
         DEFAULT_THRESHOLD
 
-      const trackIdNum = Number(trackId)
-
-      const hasTrackAi = await AiArtistsServiceInstance.hasTrack(trackIdNum)
-
       let ai = false
 
-      if (threshold !== 'deezer_100') {
+      if (threshold === 'deezer_100') {
+        // In this mode we label artist only if 100%
+        // of their releases were made with the help of AI
+        for (const a of artists) {
+          if (await AiArtistsServiceInstance.hasDeezerArtist100(a.artistId)) {
+            ai = true
+            break
+          }
+        }
+      } else {
         // Check Deezer artists (any% of AI releases) and optionally Slopless model
         for (const a of artists) {
           if (await AiArtistsServiceInstance.hasDeezerArtist(a.artistId)) {
             ai = true
             break
           }
+
           if (
             threshold === 'any' &&
             (await AiArtistsServiceInstance.hasSlopless(a.artistId))
@@ -111,29 +119,18 @@ export default class DefaultPlayerTrackProcessingService {
             break
           }
         }
-      } else {
-        // Only act if 100% of artist's releases are AI
-        for (const a of artists) {
-          if (await AiArtistsServiceInstance.hasDeezerArtist100(a.artistId)) {
-            ai = true
-            break
-          }
-        }
       }
 
-      if (!hasTrackAi && !ai) {
+      if (!ai) {
         return
       }
 
       const strictTracks =
         (await extensionStorage.getItem('ai-action-strict-tracks')) ?? false
 
-      if (strictTracks && !hasTrackAi) {
+      if (strictTracks) {
         return
       }
-
-      // Wait a bit before new action
-      await new Promise(resolve => setTimeout(resolve, 1000))
 
       if (behavior === 'dislike' || behavior === 'dislike_if_not_liked') {
         if (behavior === 'dislike_if_not_liked' && (await this.isLiked())) {
@@ -164,23 +161,27 @@ export default class DefaultPlayerTrackProcessingService {
           })
         }
       }
+
+      if (actionTaken) {
+        await new Promise(resolve => setTimeout(resolve, 3000))
+      }
     } finally {
       if (actionTaken) {
-        this.currentTrackId = null
+        this.currentTrackText = null
       }
     }
   }
 
   private async isLiked(): Promise<boolean> {
-    const container =
-      'div[class*="PlayerBarDesktopWithBackgroundProgressBar_sonata__"]'
-    for (let i = 0; i < 20; i++) {
+    const container = 'section[class*="VibePlayerBar_root__"]'
+    for (let i = 0; i < 50; i++) {
       const controls = document.querySelector(container)
       if (controls) {
-        const liked = controls.querySelector(
-          'button[aria-pressed] use[*|href*="#liked_"]'
+        const likeButton = controls.querySelector<HTMLButtonElement>(
+          'button[aria-label="Like"]'
         )
-        if (liked) return true
+        if (likeButton)
+          return likeButton.getAttribute('aria-pressed') === 'true'
       }
       await new Promise(resolve => setTimeout(resolve, 100))
     }
@@ -199,7 +200,7 @@ export default class DefaultPlayerTrackProcessingService {
       await new Promise(resolve => setTimeout(resolve, options.pollInterval))
 
       const controls = document.querySelector(
-        'div[class*="PlayerBarDesktopWithBackgroundProgressBar_sonata__"]'
+        'section[class*="VibePlayerBar_root__"]'
       )
       if (!controls) continue
 

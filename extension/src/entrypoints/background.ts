@@ -1,36 +1,35 @@
 import { AiArtistsServiceInstance } from '@/services/AiArtistsService'
 import type { VerifyResult } from '../types/Messages'
-import type { BlacklistJobStatus } from '@/types/Messages'
-import ArtistBlacklistingService from '@/services/ArtistBlacklistingService'
 import { onMessage } from '@/messaging'
-import { defineJobScheduler } from '@webext-core/job-scheduler'
-
-const blacklistService = new ArtistBlacklistingService()
-const jobs = defineJobScheduler()
-const BLACKLIST_JOB_ID = 'artist-blacklisting'
-const idleBlacklistJobStatus: BlacklistJobStatus = {
-  running: false,
-  processed: 0,
-  total: 0,
-  currentArtistId: null
-}
+import { DEFAULT_THRESHOLD, extensionStorage } from '@/storage'
 
 let lastResult: VerifyResult[] | null = null
-let blacklistJobStatus: BlacklistJobStatus = {
-  ...idleBlacklistJobStatus
-}
 
 export default defineBackground(() => {
   onMessage('artistFound', async message => {
-    const aiArtists = await AiArtistsServiceInstance.getAiArtists()
-    const set = new Set(aiArtists)
+    const threshold =
+      (await extensionStorage.getItem('ai-action-threshold')) ??
+      DEFAULT_THRESHOLD
 
-    lastResult = message.data.map(req => {
-      return {
-        artistId: req.artistId,
-        ai: set.has(req.artistId)
-      }
-    })
+    lastResult = await Promise.all(
+      message.data.map(async req => {
+        const id = req.artistId
+
+        if (threshold === 'any') {
+          const source = await AiArtistsServiceInstance.getArtistSource(id)
+          return { artistId: id, ai: source !== null, source }
+        }
+
+        if (threshold === 'deezer_any') {
+          const deezer = await AiArtistsServiceInstance.hasDeezerArtist(id)
+          return { artistId: id, ai: deezer, source: deezer ? 'deezer' : null }
+        }
+
+        // deezer_100
+        const strict = await AiArtistsServiceInstance.hasDeezerArtist100(id)
+        return { artistId: id, ai: strict, source: strict ? 'deezer' : null }
+      })
+    )
 
     return lastResult
   })
@@ -39,45 +38,9 @@ export default defineBackground(() => {
     return lastResult
   })
 
-  onMessage('getBlacklistJobStatus', () => {
-    return { ...blacklistJobStatus }
-  })
-
-  onMessage('startBlacklistJob', async () => {
-    if (blacklistJobStatus.running) {
-      return { ...blacklistJobStatus }
-    }
-
-    blacklistJobStatus = {
-      running: true,
-      processed: 0,
-      total: 0,
-      currentArtistId: null
-    }
-
-    await jobs.scheduleJob({
-      id: BLACKLIST_JOB_ID,
-      type: 'once',
-      date: Date.now(),
-      execute: () =>
-        blacklistService.start(status => {
-          blacklistJobStatus = status
-        })
-    })
-
-    return { ...blacklistJobStatus }
-  })
-
-  onMessage('stopBlacklistJob', async () => {
-    await jobs.removeJob(BLACKLIST_JOB_ID)
-    blacklistService.stop()
-
-    blacklistJobStatus = {
-      ...blacklistJobStatus,
-      running: false,
-      currentArtistId: null
-    }
-
-    return { ...blacklistJobStatus }
-  })
+  onMessage('getCounts', async () => ({
+    deezerAll: await AiArtistsServiceInstance.getDeezerAllCount(),
+    deezer100: await AiArtistsServiceInstance.getDeezer100Count(),
+    slopless: await AiArtistsServiceInstance.getSloplessCount()
+  }))
 })

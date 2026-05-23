@@ -1,4 +1,4 @@
-import TrackBlacklistingService from '@/services/TrackBlacklistingService'
+import DefaultPlayerTrackProcessingService from '@/services/TrackBlacklistingService'
 import { MATCHES_DOMAINS } from '@/types/Domains'
 
 export default defineContentScript({
@@ -12,7 +12,7 @@ export default defineContentScript({
       return
     }
 
-    const service = new TrackBlacklistingService()
+    const service = new DefaultPlayerTrackProcessingService()
     await service.start()
   }
 })

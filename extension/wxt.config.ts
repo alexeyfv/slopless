@@ -7,9 +7,9 @@ export default defineConfig({
   modules: ['@wxt-dev/module-svelte'],
   manifestVersion: 3,
   manifest: {
-    permissions: ['storage', 'scripting', 'alarms'],
+    permissions: ['storage'],
     host_permissions: [
-      'https://raw.githubusercontent.com/alexeyfv/slopless/refs/heads/main/data/yandex_music.json',
+      'https://raw.githubusercontent.com/alexeyfv/slopless/refs/heads/main/data/*',
       'https://music.yandex.com/*',
       'https://music.yandex.ru/*',
       'https://music.yandex.by/*',
