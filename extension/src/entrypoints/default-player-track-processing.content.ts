@@ -1,4 +1,4 @@
-import DefaultPlayerTrackProcessingService from '@/services/TrackBlacklistingService'
+import DefaultPlayerTrackProcessingService from '@/services/DefaultPlayerTrackProcessingService'
 import { MATCHES_DOMAINS } from '@/types/Domains'
 
 export default defineContentScript({
