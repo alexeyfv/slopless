@@ -6,6 +6,7 @@ export default defineConfig({
   title: 'Slopless',
   description: 'Keep your music free of AI slop.',
   head: [
+    ['link', { rel: 'icon', href: '/slopless/favicon.png' }],
     [
       'meta',
       {
@@ -32,6 +33,9 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: 'Home', link: '/' },
+          { text: 'AI Detection', link: '/detection' },
+          { text: 'Releases', link: '/releases' },
+          { text: 'FAQ', link: '/faq' },
           { text: 'Privacy', link: '/privacy-policy' }
         ]
       }
@@ -45,6 +49,9 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: 'Главная', link: '/ru/' },
+          { text: 'Обнаружение ИИ', link: '/ru/detection' },
+          { text: 'Релизы', link: '/ru/releases' },
+          { text: 'FAQ', link: '/ru/faq' },
           { text: 'Политика конфиденциальности', link: '/ru/privacy-policy' }
         ]
       }
