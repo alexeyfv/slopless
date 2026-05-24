@@ -8,9 +8,15 @@
     DEFAULT_BEHAVIOR,
     DEFAULT_THRESHOLD,
     DEFAULT_STRICT_TRACKS,
+    DEFAULT_LOCALE,
     extensionStorage
   } from '../../storage'
-  import type { AiMusicBehavior, AiActionThreshold } from '../../storage'
+  import type {
+    AiMusicBehavior,
+    AiActionThreshold,
+    Locale
+  } from '../../storage'
+  import { t } from '../../locales'
 
   let deezerAllCount = 0
   let deezer100Count = 0
@@ -18,6 +24,7 @@
   let behavior: AiMusicBehavior = DEFAULT_BEHAVIOR
   let threshold: AiActionThreshold = DEFAULT_THRESHOLD
   let strictTracks = DEFAULT_STRICT_TRACKS
+  let locale: Locale = DEFAULT_LOCALE
   let dislikesUrl = 'https://music.yandex.com/collection/dislikes?tab=tracks'
   let displayText = ''
 
@@ -73,18 +80,31 @@
     await extensionStorage.setItem('ai-action-strict-tracks', value)
   }
 
+  const loadLocale = async () => {
+    const saved = await extensionStorage.getItem('locale')
+    locale = saved === 'ru' || saved === 'en' ? saved : DEFAULT_LOCALE
+  }
+
+  const saveLocale = async (value: Locale) => {
+    locale = value
+    await extensionStorage.setItem('locale', value)
+  }
+
   onMount(() => {
     void resolveDislikesUrl()
     void loadCounts()
     void loadBehavior()
     void loadThreshold()
     void loadStrictTracks()
+    void loadLocale()
   })
+
+  $: document.title = t(locale, 'popup_title')
 
   $: {
     const total = deezerAllCount + sloplessCount
     if (total === 0) {
-      displayText = 'Loading database...'
+      displayText = t(locale, 'loading')
     } else {
       const active =
         threshold === 'any'
@@ -92,90 +112,132 @@
           : threshold === 'deezer_any'
             ? deezerAllCount
             : deezer100Count
-      displayText = `Slopless will act on ${active.toLocaleString()} artists (${Math.round((active / total) * 100)}% of database)`
+      displayText = t(locale, 'display_text', {
+        count: active.toLocaleString(),
+        pct: Math.round((active / total) * 100)
+      })
     }
   }
 </script>
 
-<main class="flex w-125 flex-col gap-4 p-4">
+<main class="flex w-135 flex-col gap-4 p-4">
   <!-- Header -->
-  <h1 class="h1 text-center">Slopless</h1>
+  <div class="flex items-center gap-2">
+    <h1 class="h1 flex-1">Slopless</h1>
+    <select
+      class="select select-sm w-24"
+      value={locale}
+      onchange={e => saveLocale(e.currentTarget.value as Locale)}
+    >
+      <option value="ru">{t(locale, 'locale.ru')}</option>
+      <option value="en">{t(locale, 'locale.en')}</option>
+    </select>
+  </div>
 
   <!-- Form -->
-  <form class="mx-auto w-full max-w-md space-y-4">
+  <form class="mx-auto w-full space-y-4">
     <label class="label">
-      <span class="label-text">What to do with AI music?</span>
+      <span class="label-text">{t(locale, 'threshold_label')}</span>
+      <select
+        id="ai-threshold"
+        class="select"
+        value={threshold}
+        onchange={e =>
+          saveThreshold(e.currentTarget.value as AiActionThreshold)}
+      >
+        <option value="any">{t(locale, 'threshold.any')}</option>
+        <option value="deezer_any">{t(locale, 'threshold.deezer_any')}</option>
+        <option value="deezer_100">{t(locale, 'threshold.deezer_100')}</option>
+      </select>
+    </label>
+
+    {#if threshold === 'any'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.threshold.any')}
+      </p>
+    {:else if threshold === 'deezer_any'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.threshold.deezer_any')}
+      </p>
+    {:else}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.threshold.deezer_100')}
+      </p>
+    {/if}
+
+    <p class="text-xs opacity-50">
+      <a
+        class="text-primary-500 underline hover:no-underline"
+        href="https://alexeyfv.github.io/slopless/detection"
+        target="_blank"
+        rel="noreferrer">{t(locale, 'learn_link')}</a
+      >
+    </p>
+
+    <label class="label">
+      <span class="label-text">{t(locale, 'behavior_label')}</span>
       <select
         id="ai-behavior"
         class="select"
         value={behavior}
         onchange={e => saveBehavior(e.currentTarget.value as AiMusicBehavior)}
       >
-        <option value="dislike">Dislike</option>
-        <option value="dislike_if_not_liked">Dislike if not liked</option>
-        <option value="skip">Skip track</option>
-        <option value="skip_if_not_liked">Skip if not liked</option>
-        <option value="nothing">Do nothing</option>
-        <option value="like">Like</option>
+        <option value="dislike">{t(locale, 'behavior.dislike')}</option>
+        <option value="dislike_if_not_liked"
+          >{t(locale, 'behavior.dislike_if_not_liked')}</option
+        >
+        <option value="skip">{t(locale, 'behavior.skip')}</option>
+        <option value="skip_if_not_liked"
+          >{t(locale, 'behavior.skip_if_not_liked')}</option
+        >
+        <option value="nothing">{t(locale, 'behavior.nothing')}</option>
+        <option value="like">{t(locale, 'behavior.like')}</option>
       </select>
     </label>
 
     {#if behavior === 'dislike'}
       <p class="text-xs opacity-50">
-        Slopless clicks the Dislike button on Yandex Music. The track will be
-        removed from your collection and added to your dislikes
+        {t(locale, 'desc.dislike')}
         <a
           class="text-primary-500 underline hover:no-underline"
           href={dislikesUrl}
           target="_blank"
-          rel="noreferrer">here</a
+          rel="noreferrer">{t(locale, 'desc.dislike.link')}</a
         >
-        .
-      </p>
-      <p class="text-xs opacity-50">
-        The dislike action also auto-skips the track. This is Yandex Music's
-        behavior, not the extension's.
+        {t(locale, 'desc.dislike.suffix')}
       </p>
     {/if}
 
     {#if behavior === 'dislike_if_not_liked'}
       <p class="text-xs opacity-50">
-        Slopless clicks the Dislike button only if the track has not been liked.
-        Tracks you have liked will be preserved. This is useful if you genuinely
-        enjoy some AI-generated tracks.
+        {t(locale, 'desc.dislike_if_not_liked')}
       </p>
     {/if}
 
     {#if behavior === 'skip'}
       <p class="text-xs opacity-50">
-        Slopless clicks the Next button on Yandex Music. The track will be
-        skipped without any other actions.
+        {t(locale, 'desc.skip')}
       </p>
     {/if}
 
     {#if behavior === 'skip_if_not_liked'}
       <p class="text-xs opacity-50">
-        Slopless skips the track only if it has not been liked. Liked tracks are
-        preserved and continue playing. This is useful if you genuinely enjoy
-        some AI-generated tracks.
+        {t(locale, 'desc.skip_if_not_liked')}
       </p>
     {/if}
 
     {#if behavior === 'nothing'}
       <p class="text-xs opacity-50">
-        Slopless will not click any buttons. AI artists will still be labeled on
-        the page.
+        {t(locale, 'desc.nothing')}
       </p>
     {/if}
 
     {#if behavior === 'like'}
       <p class="text-xs opacity-50">
-        Slopless clicks the Like button on Yandex Music. The track will be added
-        to your favorites.
+        {t(locale, 'desc.like.p1')}
       </p>
       <p class="text-xs opacity-50">
-        Yandex may recommend more AI-generated content after this. Use only if
-        you actually like AI music.
+        {t(locale, 'desc.like.p2')}
       </p>
     {/if}
 
@@ -186,52 +248,11 @@
       <Switch.Control>
         <Switch.Thumb />
       </Switch.Control>
-      <Switch.Label>Only act on verified AI tracks</Switch.Label>
+      <Switch.Label>{t(locale, 'switch_label')}</Switch.Label>
       <Switch.HiddenInput />
     </Switch>
     <p class="text-xs opacity-50 -mt-2">
-      When enabled, Slopless will only act on a track if it is confirmed in the
-      Deezer dataset. Otherwise the artist is labeled but no action is taken.
-      Useful when not all of an artist's releases are AI-generated.
-    </p>
-
-    <label class="label">
-      <span class="label-text">Source of data</span>
-      <select
-        id="ai-threshold"
-        class="select"
-        value={threshold}
-        onchange={e =>
-          saveThreshold(e.currentTarget.value as AiActionThreshold)}
-      >
-        <option value="any">Deezer + Slopless</option>
-        <option value="deezer_any">Deezer only</option>
-        <option value="deezer_100">Deezer strict</option>
-      </select>
-    </label>
-
-    {#if threshold === 'any'}
-      <p class="text-xs opacity-50">
-        Artists with at least one release flagged as AI on Deezer, and artists
-        detected by Slopless as probable AI artists.
-      </p>
-    {:else if threshold === 'deezer_any'}
-      <p class="text-xs opacity-50">
-        Only artists with at least one release flagged as AI on Deezer.
-      </p>
-    {:else}
-      <p class="text-xs opacity-50">
-        Only artists where 100% of releases are flagged as AI on Deezer.
-      </p>
-    {/if}
-
-    <p class="text-xs opacity-50">
-      <a
-        class="text-primary-500 underline hover:no-underline"
-        href="https://alexeyfv.github.io/slopless/detection"
-        target="_blank"
-        rel="noreferrer">Learn how we detect AI music.</a
-      >
+      {t(locale, 'switch_desc')}
     </p>
   </form>
 
@@ -243,8 +264,8 @@
       href="https://github.com/alexeyfv/slopless"
       rel="noreferrer"
       target="_blank"
-      aria-label="Open the Slopless GitHub repository"
-      title="GitHub repository"
+      aria-label={t(locale, 'github_aria')}
+      title={t(locale, 'github_title')}
     >
       <IconBrandGithub size={14} />
       <span>GitHub</span>
@@ -254,8 +275,8 @@
       href="https://t.me/yet_another_dev"
       rel="noreferrer"
       target="_blank"
-      aria-label="Open the Slopless Telegram channel"
-      title="Telegram channel"
+      aria-label={t(locale, 'telegram_aria')}
+      title={t(locale, 'telegram_title')}
     >
       <IconBrandTelegram size={14} />
       <span>Telegram</span>

@@ -1,5 +1,8 @@
 import { sendMessage } from '@/messaging'
+import { extensionStorage, DEFAULT_LOCALE } from '@/storage'
 import type { VerifyRequest, VerifyResult } from '../types/Messages'
+import type { Locale } from '../storage'
+import { t } from '@/locales'
 
 export type Artist = {
   artistName: string
@@ -13,10 +16,7 @@ export type Artist = {
  */
 export default class ArtistLabelingService {
   protected SLOPLESS_LABEL = 'slopless-label'
-  private readonly DEEZER_TOOLTIP =
-    'This artist has tracks that were labeled as generated with the use of AI'
-  private readonly XGBOOST_TOOLTIP_HTML =
-    'This artist most probably has tracks that were generated with the use of AI'
+  protected locale: Locale = DEFAULT_LOCALE
 
   protected getArtist(element: HTMLAnchorElement): Artist {
     const artistHref = element.href
@@ -95,8 +95,23 @@ export default class ArtistLabelingService {
     }
   }
 
+  protected getLabelStyles(
+    borderColor: string,
+    bgColor: string,
+    textColor: string
+  ): string[] {
+    return [
+      'margin: 0px 6px',
+      'padding: 0px 6px',
+      `border: 1px solid ${borderColor}`,
+      'border-radius: 4px',
+      `background: ${bgColor}`,
+      `color: ${textColor}`,
+      'font-size: smaller'
+    ]
+  }
+
   protected createLabel(source: 'deezer' | 'slopless' | null) {
-    const isDeezer = source === 'deezer'
     const isSlopless = source === 'slopless'
 
     const borderColor = isSlopless ? 'rgb(245 158 11)' : 'rgb(239 68 68)'
@@ -104,65 +119,23 @@ export default class ArtistLabelingService {
       ? 'rgba(245 158 11 / 0.12)'
       : 'rgba(239 68 68 / 0.12)'
     const textColor = isSlopless ? 'rgb(245 158 11)' : 'rgb(239 68 68)'
-    const tooltipHtml = isDeezer
-      ? this.DEEZER_TOOLTIP
-      : isSlopless
-        ? this.XGBOOST_TOOLTIP_HTML
-        : ''
+
+    const tooltipKey =
+      source === 'deezer'
+        ? 'tooltip.deezer'
+        : source === 'slopless'
+          ? 'tooltip.slopless'
+          : null
 
     const slopLabel = document.createElement('span')
 
-    const styles = [
-      'display: inline-flex',
-      'align-items: center',
-      'margin: 0px 6px',
-      'padding: 0px 6px',
-      `border: 1px solid ${borderColor}`,
-      'border-radius: 4px',
-      `background: ${bgColor}`,
-      `color: ${textColor}`,
-      'cursor: default',
-      'position: relative'
-    ]
+    const styles = this.getLabelStyles(borderColor, bgColor, textColor)
 
     slopLabel.className = this.SLOPLESS_LABEL
-    slopLabel.textContent = 'AI'
+    slopLabel.textContent = t(this.locale, 'artist.label')
     slopLabel.style.cssText = styles.join('; ')
 
-    if (tooltipHtml) {
-      const tooltip = document.createElement('span')
-      tooltip.innerHTML = tooltipHtml
-      tooltip.style.cssText = [
-        'display: none',
-        'position: fixed',
-        'z-index: 99999',
-        'background: #1a1a1a',
-        'color: #fff',
-        'border-radius: 6px',
-        'padding: 8px 12px',
-        'font-size: 13px',
-        'line-height: 1.4',
-        'max-width: 280px',
-        'white-space: normal',
-        'box-shadow: 0 4px 12px rgba(0,0,0,0.3)'
-      ].join('; ')
-      slopLabel.appendChild(tooltip)
-
-      slopLabel.addEventListener('mouseenter', () => {
-        const rect = slopLabel.getBoundingClientRect()
-        tooltip.style.display = 'block'
-        tooltip.style.left = `${Math.min(rect.left, window.innerWidth - 300)}px`
-        tooltip.style.top = `${rect.bottom + 6}px`
-
-        if (rect.bottom + 6 + tooltip.offsetHeight > window.innerHeight) {
-          tooltip.style.top = `${rect.top - 6 - tooltip.offsetHeight}px`
-        }
-      })
-
-      slopLabel.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none'
-      })
-    }
+    if (tooltipKey) slopLabel.title = t(this.locale, tooltipKey)
 
     return slopLabel
   }
@@ -183,6 +156,8 @@ export default class ArtistLabelingService {
   }
 
   public async start() {
+    const saved = await extensionStorage.getItem('locale')
+    this.locale = saved === 'ru' || saved === 'en' ? saved : DEFAULT_LOCALE
     await this.scan()
     this.observe()
   }

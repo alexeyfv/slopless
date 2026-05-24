@@ -7,6 +7,7 @@ export type AiArtistsCache = {
 // Level 1 (any) - Deezer (Any%) + Slopless AI detector
 // Level 2 (deezer_any) - If at least 1 release is labeled as AI on Deezer (Any%)
 // Level 3 (deezer_100) - If 100% of artist's releases are labeled as AI in Deezer
+export type Locale = 'ru' | 'en'
 export type AiActionThreshold = 'any' | 'deezer_any' | 'deezer_100'
 export type AiMusicBehavior =
   | 'dislike'
@@ -19,8 +20,10 @@ export type AiMusicBehavior =
 export const DEFAULT_THRESHOLD: AiActionThreshold = 'any'
 export const DEFAULT_BEHAVIOR: AiMusicBehavior = 'dislike'
 export const DEFAULT_STRICT_TRACKS = false
+export const DEFAULT_LOCALE: Locale = 'ru'
 
 export type ExtensionStorageSchema = {
+  locale: Locale
   'ai-artists': AiArtistsCache
   'ai-music-behavior': AiMusicBehavior
   'ai-action-threshold': AiActionThreshold
