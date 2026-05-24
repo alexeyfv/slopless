@@ -2,128 +2,283 @@
   import IconBrandGithub from '@tabler/icons-svelte/icons/brand-github'
   import IconBrandTelegram from '@tabler/icons-svelte/icons/brand-telegram'
   import { onMount } from 'svelte'
+  import { Switch } from '@skeletonlabs/skeleton-svelte'
   import { sendMessage } from '../../messaging'
-  import { Progress } from '@skeletonlabs/skeleton-svelte'
-  import type { BlacklistJobStatus, VerifyResult } from '../../types/Messages'
+  import {
+    DEFAULT_BEHAVIOR,
+    DEFAULT_THRESHOLD,
+    DEFAULT_STRICT_TRACKS,
+    DEFAULT_LOCALE,
+    extensionStorage
+  } from '../../storage'
+  import type {
+    AiMusicBehavior,
+    AiActionThreshold,
+    Locale
+  } from '../../storage'
+  import { t } from '../../locales'
 
-  let lastResult: VerifyResult[] = []
-  let count = 0
-  let blacklistJobStatus: BlacklistJobStatus = {
-    running: false,
-    processed: 0,
-    total: 0,
-    currentArtistId: null
+  let deezerAllCount = 0
+  let deezer100Count = 0
+  let sloplessCount = 0
+  let behavior: AiMusicBehavior = DEFAULT_BEHAVIOR
+  let threshold: AiActionThreshold = DEFAULT_THRESHOLD
+  let strictTracks = DEFAULT_STRICT_TRACKS
+  let locale: Locale = DEFAULT_LOCALE
+  let dislikesUrl = 'https://music.yandex.com/collection/dislikes?tab=tracks'
+  let displayText = ''
+
+  const resolveDislikesUrl = async () => {
+    try {
+      const [tab] = await browser.tabs.query({
+        active: true,
+        currentWindow: true
+      })
+      if (tab?.url) {
+        const tld = new URL(tab.url).hostname.split('.').pop()
+        dislikesUrl = `https://music.yandex.${tld}/collection/dislikes?tab=tracks`
+      }
+    } catch {
+      // Keep the .com default if query fails
+    }
   }
-  let blacklistProgress = 0
 
-  const refreshState = async () => {
-    const [latestResult, latestJobStatus] = await Promise.all([
-      sendMessage('getLatestArtist'),
-      sendMessage('getBlacklistJobStatus')
-    ])
+  const loadCounts = async () => {
+    const counts = await sendMessage('getCounts')
+    deezerAllCount = counts.deezerAll
+    deezer100Count = counts.deezer100
+    sloplessCount = counts.slopless
+  }
 
-    lastResult = latestResult ?? []
-    count = new Set(
-      lastResult.filter(result => result.ai).map(result => result.artistId)
-    ).size
-    blacklistJobStatus = latestJobStatus
+  const loadBehavior = async () => {
+    const saved = await extensionStorage.getItem('ai-music-behavior')
+    behavior = saved ?? DEFAULT_BEHAVIOR
+  }
+
+  const saveBehavior = async (value: AiMusicBehavior) => {
+    behavior = value
+    await extensionStorage.setItem('ai-music-behavior', value)
+  }
+
+  const loadThreshold = async () => {
+    const saved = await extensionStorage.getItem('ai-action-threshold')
+    threshold = saved ?? DEFAULT_THRESHOLD
+  }
+
+  const saveThreshold = async (value: AiActionThreshold) => {
+    threshold = value
+    await extensionStorage.setItem('ai-action-threshold', value)
+  }
+
+  const loadStrictTracks = async () => {
+    const saved = await extensionStorage.getItem('ai-action-strict-tracks')
+    strictTracks = saved ?? DEFAULT_STRICT_TRACKS
+  }
+
+  const saveStrictTracks = async (value: boolean) => {
+    strictTracks = value
+    await extensionStorage.setItem('ai-action-strict-tracks', value)
+  }
+
+  const loadLocale = async () => {
+    const saved = await extensionStorage.getItem('locale')
+    locale = saved === 'ru' || saved === 'en' ? saved : DEFAULT_LOCALE
+  }
+
+  const saveLocale = async (value: Locale) => {
+    locale = value
+    await extensionStorage.setItem('locale', value)
   }
 
   onMount(() => {
-    void refreshState()
-
-    const interval = setInterval(() => {
-      void refreshState()
-    }, 1000)
-
-    return () => {
-      clearInterval(interval)
-    }
+    void resolveDislikesUrl()
+    void loadCounts()
+    void loadBehavior()
+    void loadThreshold()
+    void loadStrictTracks()
+    void loadLocale()
   })
 
-  async function toggleBlacklistJob() {
-    if (blacklistJobStatus.running) {
-      await sendMessage('stopBlacklistJob')
-    } else {
-      await sendMessage('startBlacklistJob')
-    }
-
-    await refreshState()
-  }
+  $: document.title = t(locale, 'popup_title')
 
   $: {
-    if (blacklistJobStatus.running) {
-      if (blacklistJobStatus.total > 0) {
-        blacklistProgress =
-          (blacklistJobStatus.processed / blacklistJobStatus.total) * 100
-      } else {
-        blacklistProgress = 0
-      }
+    const total = deezerAllCount + sloplessCount
+    if (total === 0) {
+      displayText = t(locale, 'loading')
     } else {
-      blacklistProgress = 0
+      const active =
+        threshold === 'any'
+          ? total
+          : threshold === 'deezer_any'
+            ? deezerAllCount
+            : deezer100Count
+      displayText = t(locale, 'display_text', {
+        count: active.toLocaleString(),
+        pct: Math.round((active / total) * 100)
+      })
     }
   }
 </script>
 
-<main class="flex w-[300px] flex-col gap-4 p-4">
-  <h1 class="h1">Slopless</h1>
+<main class="flex w-135 flex-col gap-4 p-4">
+  <!-- Header -->
+  <div class="flex items-center gap-2">
+    <h1 class="h1 flex-1">Slopless</h1>
+    <select
+      class="select select-sm w-24"
+      value={locale}
+      onchange={e => saveLocale(e.currentTarget.value as Locale)}
+    >
+      <option value="ru">{t(locale, 'locale.ru')}</option>
+      <option value="en">{t(locale, 'locale.en')}</option>
+    </select>
+  </div>
 
-  <button class="btn preset-outlined-primary-500" on:click={toggleBlacklistJob}>
-    {blacklistJobStatus.running
-      ? 'Stop blacklisting'
-      : 'Blacklist all AI artists'}
-  </button>
+  <!-- Form -->
+  <form class="mx-auto w-full space-y-4">
+    <label class="label">
+      <span class="label-text">{t(locale, 'threshold_label')}</span>
+      <select
+        id="ai-threshold"
+        class="select"
+        value={threshold}
+        onchange={e =>
+          saveThreshold(e.currentTarget.value as AiActionThreshold)}
+      >
+        <option value="any">{t(locale, 'threshold.any')}</option>
+        <option value="deezer_any">{t(locale, 'threshold.deezer_any')}</option>
+        <option value="deezer_100">{t(locale, 'threshold.deezer_100')}</option>
+      </select>
+    </label>
 
-  {#if blacklistJobStatus.running}
-    <Progress value={blacklistProgress} class="grid gap-2">
-      <div class="flex items-center justify-between gap-2">
-        <Progress.Label class="text-xs font-semibold opacity-60">
-          Blacklisting {blacklistJobStatus.processed} / {blacklistJobStatus.total}
-        </Progress.Label>
-        <Progress.ValueText class="text-xs opacity-60" />
-      </div>
-      <Progress.Track class="h-2 bg-primary-50-950">
-        <Progress.Range class="bg-primary-500" />
-      </Progress.Track>
-      {#if blacklistJobStatus.currentArtistId}
-        <p class="truncate text-xs opacity-60">
-          Now processing {blacklistJobStatus.currentArtistId}
-        </p>
-      {/if}
-    </Progress>
-  {/if}
+    {#if threshold === 'any'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.threshold.any')}
+      </p>
+    {:else if threshold === 'deezer_any'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.threshold.deezer_any')}
+      </p>
+    {:else}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.threshold.deezer_100')}
+      </p>
+    {/if}
 
-  {#if count > 0}
-    <div class="space-y-2">
-      <h2 class="text-xs font-semibold opacity-60">
-        {count} AI artist(s) detected
-      </h2>
-    </div>
-  {:else}
-    <p class="text-sm opacity-70">No AI artists detected.</p>
-  {/if}
+    <p class="text-xs opacity-50">
+      <a
+        class="text-primary-500 underline hover:no-underline"
+        href="https://alexeyfv.github.io/slopless/detection"
+        target="_blank"
+        rel="noreferrer">{t(locale, 'learn_link')}</a
+      >
+    </p>
 
-  <footer class="gap-2 flex">
+    <label class="label">
+      <span class="label-text">{t(locale, 'behavior_label')}</span>
+      <select
+        id="ai-behavior"
+        class="select"
+        value={behavior}
+        onchange={e => saveBehavior(e.currentTarget.value as AiMusicBehavior)}
+      >
+        <option value="dislike">{t(locale, 'behavior.dislike')}</option>
+        <option value="dislike_if_not_liked"
+          >{t(locale, 'behavior.dislike_if_not_liked')}</option
+        >
+        <option value="skip">{t(locale, 'behavior.skip')}</option>
+        <option value="skip_if_not_liked"
+          >{t(locale, 'behavior.skip_if_not_liked')}</option
+        >
+        <option value="nothing">{t(locale, 'behavior.nothing')}</option>
+        <option value="like">{t(locale, 'behavior.like')}</option>
+      </select>
+    </label>
+
+    {#if behavior === 'dislike'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.dislike')}
+        <a
+          class="text-primary-500 underline hover:no-underline"
+          href={dislikesUrl}
+          target="_blank"
+          rel="noreferrer">{t(locale, 'desc.dislike.link')}</a
+        >
+        {t(locale, 'desc.dislike.suffix')}
+      </p>
+    {/if}
+
+    {#if behavior === 'dislike_if_not_liked'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.dislike_if_not_liked')}
+      </p>
+    {/if}
+
+    {#if behavior === 'skip'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.skip')}
+      </p>
+    {/if}
+
+    {#if behavior === 'skip_if_not_liked'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.skip_if_not_liked')}
+      </p>
+    {/if}
+
+    {#if behavior === 'nothing'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.nothing')}
+      </p>
+    {/if}
+
+    {#if behavior === 'like'}
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.like.p1')}
+      </p>
+      <p class="text-xs opacity-50">
+        {t(locale, 'desc.like.p2')}
+      </p>
+    {/if}
+
+    <Switch
+      checked={strictTracks}
+      onCheckedChange={details => saveStrictTracks(details.checked)}
+    >
+      <Switch.Control>
+        <Switch.Thumb />
+      </Switch.Control>
+      <Switch.Label>{t(locale, 'switch_label')}</Switch.Label>
+      <Switch.HiddenInput />
+    </Switch>
+    <p class="text-xs opacity-50 -mt-2">
+      {t(locale, 'switch_desc')}
+    </p>
+  </form>
+
+  <p class="text-xs text-center font-semibold opacity-60">{displayText}</p>
+
+  <footer class="gap-2 flex justify-center">
     <a
-      class="btn preset-outlined-primary-500 flex-1 items-center justify-center gap-2"
+      class="btn btn-sm preset-outlined-primary-500 items-center justify-center gap-2"
       href="https://github.com/alexeyfv/slopless"
       rel="noreferrer"
       target="_blank"
-      aria-label="Open the Slopless GitHub repository"
-      title="GitHub repository"
+      aria-label={t(locale, 'github_aria')}
+      title={t(locale, 'github_title')}
     >
-      <IconBrandGithub size={18} />
+      <IconBrandGithub size={14} />
       <span>GitHub</span>
     </a>
     <a
-      class="btn preset-outlined-primary-500 flex-1 items-center justify-center gap-2"
+      class="btn btn-sm preset-outlined-primary-500 items-center justify-center gap-2"
       href="https://t.me/yet_another_dev"
       rel="noreferrer"
       target="_blank"
-      aria-label="Open the Slopless Telegram channel"
-      title="Telegram channel"
+      aria-label={t(locale, 'telegram_aria')}
+      title={t(locale, 'telegram_title')}
     >
-      <IconBrandTelegram size={18} />
+      <IconBrandTelegram size={14} />
       <span>Telegram</span>
     </a>
   </footer>

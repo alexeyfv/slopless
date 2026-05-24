@@ -1,5 +1,8 @@
 import { sendMessage } from '@/messaging'
+import { extensionStorage, DEFAULT_LOCALE } from '@/storage'
 import type { VerifyRequest, VerifyResult } from '../types/Messages'
+import type { Locale } from '../storage'
+import { t } from '@/locales'
 
 export type Artist = {
   artistName: string
@@ -13,6 +16,7 @@ export type Artist = {
  */
 export default class ArtistLabelingService {
   protected SLOPLESS_LABEL = 'slopless-label'
+  protected locale: Locale = DEFAULT_LOCALE
 
   protected getArtist(element: HTMLAnchorElement): Artist {
     const artistHref = element.href
@@ -62,16 +66,16 @@ export default class ArtistLabelingService {
     verifyResult: VerifyResult[]
   ): void {
     // Create a map for faster lookups
-    const map = new Map<string, boolean>()
+    const map = new Map<string, VerifyResult>()
     for (const result of verifyResult) {
-      map.set(result.artistId, result.ai)
+      map.set(result.artistId, result)
     }
 
     for (const a of artists) {
       // 1. Check the artists status
-      const ai = map.get(a.artistId)
+      const result = map.get(a.artistId)
 
-      if (ai !== true) {
+      if (!result || !result.ai) {
         continue
       }
 
@@ -86,28 +90,52 @@ export default class ArtistLabelingService {
       }
 
       // 2. Create and insert label
-      const label = this.createSlopLabel()
+      const label = this.createLabel(result.source)
       a.labelTarget.insertAdjacentElement('beforeend', label)
     }
   }
 
-  protected createSlopLabel() {
-    const slopLabel = document.createElement('span')
-
-    const styles = [
-      'display: inline-flex',
-      'align-items: center',
+  protected getLabelStyles(
+    borderColor: string,
+    bgColor: string,
+    textColor: string
+  ): string[] {
+    return [
       'margin: 0px 6px',
       'padding: 0px 6px',
-      'border: 1px solid rgb(239 68 68)',
+      `border: 1px solid ${borderColor}`,
       'border-radius: 4px',
-      'background: rgba(239 68 68 / 0.12)',
-      'color: rgb(239 68 68)'
+      `background: ${bgColor}`,
+      `color: ${textColor}`,
+      'font-size: smaller'
     ]
+  }
+
+  protected createLabel(source: 'deezer' | 'slopless' | null) {
+    const isSlopless = source === 'slopless'
+
+    const borderColor = isSlopless ? 'rgb(245 158 11)' : 'rgb(239 68 68)'
+    const bgColor = isSlopless
+      ? 'rgba(245 158 11 / 0.12)'
+      : 'rgba(239 68 68 / 0.12)'
+    const textColor = isSlopless ? 'rgb(245 158 11)' : 'rgb(239 68 68)'
+
+    const tooltipKey =
+      source === 'deezer'
+        ? 'tooltip.deezer'
+        : source === 'slopless'
+          ? 'tooltip.slopless'
+          : null
+
+    const slopLabel = document.createElement('span')
+
+    const styles = this.getLabelStyles(borderColor, bgColor, textColor)
 
     slopLabel.className = this.SLOPLESS_LABEL
-    slopLabel.textContent = 'AI'
+    slopLabel.textContent = t(this.locale, 'artist.label')
     slopLabel.style.cssText = styles.join('; ')
+
+    if (tooltipKey) slopLabel.title = t(this.locale, tooltipKey)
 
     return slopLabel
   }
@@ -128,6 +156,8 @@ export default class ArtistLabelingService {
   }
 
   public async start() {
+    const saved = await extensionStorage.getItem('locale')
+    this.locale = saved === 'ru' || saved === 'en' ? saved : DEFAULT_LOCALE
     await this.scan()
     this.observe()
   }

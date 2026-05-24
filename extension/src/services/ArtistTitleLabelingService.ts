@@ -7,6 +7,20 @@ import ArtistLabelingService, { Artist } from '@/services/ArtistLabelingService'
  * and we need to get the artist ID from the URL of the page, not from the link itself.
  */
 export class ArtistTitleLabelingService extends ArtistLabelingService {
+  protected getLabelStyles(
+    borderColor: string,
+    bgColor: string,
+    textColor: string
+  ): string[] {
+    return [
+      'margin: 0px 6px',
+      'padding: 0px 6px',
+      `border: 1px solid ${borderColor}`,
+      'border-radius: 4px',
+      `background: ${bgColor}`,
+      `color: ${textColor}`
+    ]
+  }
   protected getElements(): HTMLAnchorElement[] {
     // First, find the element for the artist title
     const titleRoot = document.querySelector<HTMLAnchorElement>(
