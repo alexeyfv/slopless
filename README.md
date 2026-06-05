@@ -1,6 +1,6 @@
 # Slopless
 
-![Made with AI](https://img.shields.io/badge/Made%20with-AI-lightgrey?style=for-the-badge)
+[![Telegram](https://img.shields.io/badge/Telegram-Follow_updates-blue?logo=telegram)](https://t.me/yet_another_dev) ![DeepSeek](https://img.shields.io/badge/DeepSeek-Built_with_AI-blue?logo=deepseek)
 
 Keep your music free of AI slop.
 
