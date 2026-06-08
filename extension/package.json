@@ -33,7 +33,7 @@
     "@tabler/icons-svelte": "^3.44.0",
     "@tailwindcss/vite": "^4.3.0",
     "@webext-core/messaging": "^2.3.0",
-    "@webext-core/storage": "^1.2.0",
+    "@webext-core/storage": "^1.2.1",
     "tailwindcss": "^4.3.0"
   }
 }
