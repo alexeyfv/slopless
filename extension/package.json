@@ -34,6 +34,6 @@
     "@tailwindcss/vite": "^4.3.0",
     "@webext-core/messaging": "^2.3.0",
     "@webext-core/storage": "^1.2.0",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.1"
   }
 }
