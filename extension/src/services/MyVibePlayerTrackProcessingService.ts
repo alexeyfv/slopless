@@ -1,9 +1,5 @@
-import { AiArtistsServiceInstance } from './AiArtistsService'
-import {
-  DEFAULT_BEHAVIOR,
-  DEFAULT_THRESHOLD,
-  extensionStorage
-} from '@/storage'
+import { sendMessage } from '@/messaging'
+import { DEFAULT_BEHAVIOR, extensionStorage } from '@/storage'
 
 export type Artist = {
   artistName: string
@@ -88,47 +84,11 @@ export default class MyVibePlayerTrackProcessingService {
     let actionTaken = false
 
     try {
-      const threshold =
-        (await extensionStorage.getItem('ai-action-threshold')) ??
-        DEFAULT_THRESHOLD
-
-      let ai = false
-
-      if (threshold === 'deezer_100') {
-        // In this mode we label artist only if 100%
-        // of their releases were made with the help of AI
-        for (const a of artists) {
-          if (await AiArtistsServiceInstance.hasDeezerArtist100(a.artistId)) {
-            ai = true
-            break
-          }
-        }
-      } else {
-        // Check Deezer artists (any% of AI releases) and optionally Slopless model
-        for (const a of artists) {
-          if (await AiArtistsServiceInstance.hasDeezerArtist(a.artistId)) {
-            ai = true
-            break
-          }
-
-          if (
-            threshold === 'any' &&
-            (await AiArtistsServiceInstance.hasSlopless(a.artistId))
-          ) {
-            ai = true
-            break
-          }
-        }
-      }
+      const { ai } = await sendMessage('checkAiStatus', {
+        artistIds: artists.map(a => a.artistId)
+      })
 
       if (!ai) {
-        return
-      }
-
-      const strictTracks =
-        (await extensionStorage.getItem('ai-action-strict-tracks')) ?? false
-
-      if (strictTracks) {
         return
       }
 

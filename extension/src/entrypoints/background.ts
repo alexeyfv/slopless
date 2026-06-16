@@ -21,11 +21,13 @@ export default defineBackground(() => {
         }
 
         if (threshold === 'deezer_any') {
+          // Check Deezer artists (any% of AI releases) and optionally Slopless model
           const deezer = await AiArtistsServiceInstance.hasDeezerArtist(id)
           return { artistId: id, ai: deezer, source: deezer ? 'deezer' : null }
         }
 
-        // deezer_100
+        // In this mode we label artist only if 100%
+        // of their releases were made with the help of AI
         const strict = await AiArtistsServiceInstance.hasDeezerArtist100(id)
         return { artistId: id, ai: strict, source: strict ? 'deezer' : null }
       })
@@ -43,4 +45,29 @@ export default defineBackground(() => {
     deezer100: await AiArtistsServiceInstance.getDeezer100Count(),
     slopless: await AiArtistsServiceInstance.getSloplessCount()
   }))
+
+  onMessage('checkAiStatus', async message => {
+    const { artistIds } = message.data
+    const storedThreshold = await extensionStorage.getItem(
+      'ai-action-threshold'
+    )
+    const threshold = storedThreshold ?? DEFAULT_THRESHOLD
+
+    for (const id of artistIds) {
+      if (threshold !== 'deezer_100') {
+        if (await AiArtistsServiceInstance.hasDeezerArtist(id))
+          return { ai: true }
+        if (
+          threshold === 'any' &&
+          (await AiArtistsServiceInstance.hasSlopless(id))
+        )
+          return { ai: true }
+      } else {
+        if (await AiArtistsServiceInstance.hasDeezerArtist100(id))
+          return { ai: true }
+      }
+    }
+
+    return { ai: false }
+  })
 })
