@@ -1,0 +1,6 @@
+data
+models
+fake_songs
+real_songs
+fake_songs.csv
+real_songs.csv

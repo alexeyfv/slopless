@@ -1,0 +1,22 @@
+[project]
+name = "classifier"
+version = "0.1.0"
+description = "AI music classifier"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "huggingface-hub",
+  "ipykernel>=7.3.0",
+  "joblib",
+  "kaggle",
+  "librosa",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "python-dotenv",
+  "scikit-learn",
+  "scipy",
+  "tqdm",
+  "xgboost",
+  "yt-dlp>=2026.6.9",
+]
