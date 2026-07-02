@@ -8,7 +8,7 @@ This notebook is inspired by the Deezer Research team's ISMIR 2025 paper ["A Fou
 
 - Python 3.13+
 - [uv](https://docs.astral.sh/uv/)
-- ~16 GB free disk space for datasets
+- ~37 GB free disk space for dataset
 
 ## Run
 
