@@ -5,7 +5,7 @@ export default defineContentScript({
   matches: MATCHES_DOMAINS,
   main: async function () {
     const playerBar = document.querySelector(
-      'section[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"]'
+      '[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"], [class*="PlayerBarDesktopWithBackgroundProgressBar_player__"]'
     )
 
     if (!playerBar) {

@@ -35,7 +35,7 @@ export default class MyVibePlayerTrackProcessingService {
 
   protected async scan(): Promise<void> {
     const myVibePage = document.querySelector<HTMLElement>(
-      'div[class*="VibePage_meta__"]'
+      '[class*="VibePage_meta__"]'
     )
 
     if (!myVibePage) {
@@ -61,7 +61,7 @@ export default class MyVibePlayerTrackProcessingService {
     const artists = elements.map(this.getArtist)
 
     const trackElement = myVibePage.querySelector<HTMLAnchorElement>(
-      'div[class*="VibePlayerbarMeta_trackNameText__"]'
+      '[class*="VibePlayerbarMeta_trackNameText__"]'
     )
 
     if (!trackElement) {
@@ -133,7 +133,7 @@ export default class MyVibePlayerTrackProcessingService {
   }
 
   private async isLiked(): Promise<boolean> {
-    const container = 'section[class*="VibePlayerBar_root__"]'
+    const container = '[class*="VibePlayerBar_root__"]'
     for (let i = 0; i < 50; i++) {
       const controls = document.querySelector(container)
       if (controls) {
@@ -159,9 +159,7 @@ export default class MyVibePlayerTrackProcessingService {
     while (!button) {
       await new Promise(resolve => setTimeout(resolve, options.pollInterval))
 
-      const controls = document.querySelector(
-        'section[class*="VibePlayerBar_root__"]'
-      )
+      const controls = document.querySelector('[class*="VibePlayerBar_root__"]')
       if (!controls) continue
 
       const buttons = Array.from(

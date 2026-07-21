@@ -36,7 +36,7 @@ export default class DefaultPlayerTrackProcessingService {
 
   protected async scan(): Promise<void> {
     const playerBar = document.querySelector<HTMLElement>(
-      'section[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"]'
+      '[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"], [class*="PlayerBarDesktopWithBackgroundProgressBar_player__"]'
     )
 
     if (!playerBar) {
@@ -131,7 +131,7 @@ export default class DefaultPlayerTrackProcessingService {
 
   private async isLiked(): Promise<boolean> {
     const container =
-      'div[class*="PlayerBarDesktopWithBackgroundProgressBar_sonata__"]'
+      '[class*="PlayerBarDesktopWithBackgroundProgressBar_sonata__"]'
     for (let i = 0; i < 20; i++) {
       const controls = document.querySelector(container)
       if (controls) {
@@ -157,7 +157,7 @@ export default class DefaultPlayerTrackProcessingService {
       await new Promise(resolve => setTimeout(resolve, options.pollInterval))
 
       const controls = document.querySelector(
-        'div[class*="PlayerBarDesktopWithBackgroundProgressBar_sonata__"]'
+        '[class*="PlayerBarDesktopWithBackgroundProgressBar_sonata__"]'
       )
       if (!controls) continue
 
