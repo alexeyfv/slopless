@@ -6,7 +6,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "prettier": "^3.8.1",
+    "prettier": "^3.9.6",
     "vitepress": "2.0.0-alpha.17"
   }
 }
