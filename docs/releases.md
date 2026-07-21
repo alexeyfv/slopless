@@ -1,5 +1,35 @@
 # Releases
 
+## v0.2.5
+
+### Fixes
+
+- Fixed broken skip, dislike, and like actions caused by Yandex Music renaming player bar CSS module classes.
+- All player bar selectors now more robust against future DOM changes.
+
+### Other
+
+- Updated dependencies.
+
+## v0.2.4
+
+v0.2.4 was built but never deployed to Chrome or Firefox. Its changes are included in v0.2.5.
+
+## v0.2.3
+
+Automatic rollback to v0.2.1 by Google and Mozilla after a data file issue was resolved.
+
+## v0.2.2
+
+Automatic rollback to v0.2.0 by Google and Mozilla due to a corrupted artist ID data file.
+
+## v0.2.1
+
+### Fixes
+
+- Moved AI detection logic from content scripts to background script.
+- Fixed artist status detection edge cases.
+
 ## v0.2.0
 
 ### New features
