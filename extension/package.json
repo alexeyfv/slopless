@@ -26,7 +26,7 @@
     "prettier": "^3.9.6",
     "svelte": "^5.56.7",
     "svelte-check": "^4.7.3",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "wxt": "^0.20.27"
   },
   "pnpm": {
