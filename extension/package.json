@@ -3,7 +3,7 @@
   "description": "Keep your music free of AI slop.",
   "private": true,
   "license": "MIT",
-  "version": "0.2.5",
+  "version": "0.3.1",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -41,6 +41,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@webext-core/messaging": "^2.3.0",
     "@webext-core/storage": "^1.2.1",
+    "lru-cache": "11.5.2",
     "tailwindcss": "^4.3.3"
   }
 }

@@ -6,23 +6,15 @@
   import { sendMessage } from '../../messaging'
   import {
     DEFAULT_BEHAVIOR,
-    DEFAULT_THRESHOLD,
     DEFAULT_STRICT_TRACKS,
     DEFAULT_LOCALE,
     extensionStorage
   } from '../../storage'
-  import type {
-    AiMusicBehavior,
-    AiActionThreshold,
-    Locale
-  } from '../../storage'
+  import type { AiMusicBehavior, Locale } from '../../storage'
   import { t } from '../../locales'
 
-  let deezerAllCount = 0
-  let deezer100Count = 0
-  let sloplessCount = 0
+  let totalAitracks = 0
   let behavior: AiMusicBehavior = DEFAULT_BEHAVIOR
-  let threshold: AiActionThreshold = DEFAULT_THRESHOLD
   let strictTracks = DEFAULT_STRICT_TRACKS
   let locale: Locale = DEFAULT_LOCALE
   let dislikesUrl = 'https://music.yandex.com/collection/dislikes?tab=tracks'
@@ -45,9 +37,7 @@
 
   const loadCounts = async () => {
     const counts = await sendMessage('getCounts')
-    deezerAllCount = counts.deezerAll
-    deezer100Count = counts.deezer100
-    sloplessCount = counts.slopless
+    totalAitracks = counts.totalAiTracks
   }
 
   const loadBehavior = async () => {
@@ -58,16 +48,6 @@
   const saveBehavior = async (value: AiMusicBehavior) => {
     behavior = value
     await extensionStorage.setItem('ai-music-behavior', value)
-  }
-
-  const loadThreshold = async () => {
-    const saved = await extensionStorage.getItem('ai-action-threshold')
-    threshold = saved ?? DEFAULT_THRESHOLD
-  }
-
-  const saveThreshold = async (value: AiActionThreshold) => {
-    threshold = value
-    await extensionStorage.setItem('ai-action-threshold', value)
   }
 
   const loadStrictTracks = async () => {
@@ -94,7 +74,6 @@
     void resolveDislikesUrl()
     void loadCounts()
     void loadBehavior()
-    void loadThreshold()
     void loadStrictTracks()
     void loadLocale()
   })
@@ -102,19 +81,11 @@
   $: document.title = t(locale, 'popup_title')
 
   $: {
-    const total = deezerAllCount + sloplessCount
-    if (total === 0) {
+    if (totalAitracks === 0) {
       displayText = t(locale, 'loading')
     } else {
-      const active =
-        threshold === 'any'
-          ? total
-          : threshold === 'deezer_any'
-            ? deezerAllCount
-            : deezer100Count
       displayText = t(locale, 'display_text', {
-        count: active.toLocaleString(),
-        pct: Math.round((active / total) * 100)
+        count: totalAitracks.toLocaleString()
       })
     }
   }
@@ -136,39 +107,10 @@
 
   <!-- Form -->
   <form class="mx-auto w-full space-y-4">
-    <label class="label">
-      <span class="label-text">{t(locale, 'threshold_label')}</span>
-      <select
-        id="ai-threshold"
-        class="select"
-        value={threshold}
-        onchange={e =>
-          saveThreshold(e.currentTarget.value as AiActionThreshold)}
-      >
-        <option value="any">{t(locale, 'threshold.any')}</option>
-        <option value="deezer_any">{t(locale, 'threshold.deezer_any')}</option>
-        <option value="deezer_100">{t(locale, 'threshold.deezer_100')}</option>
-      </select>
-    </label>
-
-    {#if threshold === 'any'}
-      <p class="text-xs opacity-50">
-        {t(locale, 'desc.threshold.any')}
-      </p>
-    {:else if threshold === 'deezer_any'}
-      <p class="text-xs opacity-50">
-        {t(locale, 'desc.threshold.deezer_any')}
-      </p>
-    {:else}
-      <p class="text-xs opacity-50">
-        {t(locale, 'desc.threshold.deezer_100')}
-      </p>
-    {/if}
-
     <p class="text-xs opacity-50">
       <a
         class="text-primary-500 underline hover:no-underline"
-        href="https://alexeyfv.github.io/slopless/detection"
+        href="https://alexeyfv.github.io/slopless/faq#how-does-slopless-detect-ai-music"
         target="_blank"
         rel="noreferrer">{t(locale, 'learn_link')}</a
       >

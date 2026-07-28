@@ -9,7 +9,7 @@ export default defineConfig({
   manifest: {
     permissions: ['storage'],
     host_permissions: [
-      'https://raw.githubusercontent.com/alexeyfv/slopless/refs/heads/main/data/*',
+      'https://slopless.art/*',
       'https://music.yandex.com/*',
       'https://music.yandex.ru/*',
       'https://music.yandex.by/*',

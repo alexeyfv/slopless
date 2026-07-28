@@ -1,8 +1,9 @@
-import { VerifyRequest, VerifyResult } from '@/types/Messages'
+import { ArtistVerifyRequest, ArtistVerifyResult, TrackVerifyRequest, TrackVerifyResult } from '@/types/Messages'
 import { defineExtensionMessaging } from '@webext-core/messaging'
 
 type CheckAiStatusRequest = {
   artistIds: string[]
+  trackId?: string
 }
 
 type CheckAiStatusResponse = {
@@ -10,9 +11,14 @@ type CheckAiStatusResponse = {
 }
 
 interface ProtocolMap {
-  artistFound(request: VerifyRequest[]): VerifyResult[]
-  getLatestArtist(): VerifyResult[] | null
-  getCounts(): { deezerAll: number; deezer100: number; slopless: number }
+  artistFound(request: ArtistVerifyRequest[]): ArtistVerifyResult[]
+  trackFound(request: TrackVerifyRequest[]): TrackVerifyResult[]
+  getLatestArtist(): ArtistVerifyResult[] | null
+  getCounts(): Promise<{
+    aiArtistsCount: number
+    totalArtistsCount: number
+    totalAiTracks: number
+  }>
   checkAiStatus(request: CheckAiStatusRequest): CheckAiStatusResponse
 }
 

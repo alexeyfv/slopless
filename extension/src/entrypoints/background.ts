@@ -1,70 +1,69 @@
-import { AiArtistsServiceInstance } from '@/services/AiArtistsService'
-import type { VerifyResult } from '../types/Messages'
+import { SloplessApiInstance } from '@/services/SloplessApi'
+import type { ArtistVerifyResult } from '../types/Messages'
 import { onMessage } from '@/messaging'
-import { DEFAULT_THRESHOLD, extensionStorage } from '@/storage'
+import { DEFAULT_STRICT_TRACKS, extensionStorage } from '@/storage'
 
-let lastResult: VerifyResult[] | null = null
+let lastResult: ArtistVerifyResult[] | null = null
 
 export default defineBackground(() => {
   onMessage('artistFound', async message => {
-    const threshold =
-      (await extensionStorage.getItem('ai-action-threshold')) ??
-      DEFAULT_THRESHOLD
-
     lastResult = await Promise.all(
       message.data.map(async req => {
         const id = req.artistId
-
-        if (threshold === 'any') {
-          const source = await AiArtistsServiceInstance.getArtistSource(id)
-          return { artistId: id, ai: source !== null, source }
+        const result = await SloplessApiInstance.checkArtist(id)
+        return {
+          artistId: id,
+          ai: result !== null && result.ai,
+          aiTracks: result?.aiTracks ?? 0,
+          totalTracks: result?.totalTracks ?? 0,
+          name: result?.name ?? ''
         }
-
-        if (threshold === 'deezer_any') {
-          // Check Deezer artists (any% of AI releases) and optionally Slopless model
-          const deezer = await AiArtistsServiceInstance.hasDeezerArtist(id)
-          return { artistId: id, ai: deezer, source: deezer ? 'deezer' : null }
-        }
-
-        // In this mode we label artist only if 100%
-        // of their releases were made with the help of AI
-        const strict = await AiArtistsServiceInstance.hasDeezerArtist100(id)
-        return { artistId: id, ai: strict, source: strict ? 'deezer' : null }
       })
     )
 
     return lastResult
   })
 
+  onMessage('trackFound', async message => {
+    return await Promise.all(
+      message.data.map(async req => {
+        const result = await SloplessApiInstance.checkTrack(req.trackId)
+        return {
+          trackId: req.trackId,
+          ai: result !== null && result.ai,
+          score: result?.score ?? null
+        }
+      })
+    )
+  })
+
   onMessage('getLatestArtist', () => {
     return lastResult
   })
 
-  onMessage('getCounts', async () => ({
-    deezerAll: await AiArtistsServiceInstance.getDeezerAllCount(),
-    deezer100: await AiArtistsServiceInstance.getDeezer100Count(),
-    slopless: await AiArtistsServiceInstance.getSloplessCount()
-  }))
+  onMessage('getCounts', async () => {
+    const stats = await SloplessApiInstance.getHomeStats()
+    return {
+      aiArtistsCount: stats.aiArtistsCount,
+      totalArtistsCount: stats.totalArtistsCount,
+      totalAiTracks: stats.totalAiTracks
+    }
+  })
 
   onMessage('checkAiStatus', async message => {
-    const { artistIds } = message.data
-    const storedThreshold = await extensionStorage.getItem(
-      'ai-action-threshold'
-    )
-    const threshold = storedThreshold ?? DEFAULT_THRESHOLD
+    const { artistIds, trackId } = message.data
+    const strictTracks =
+      (await extensionStorage.getItem('ai-action-strict-tracks')) ??
+      DEFAULT_STRICT_TRACKS
 
     for (const id of artistIds) {
-      if (threshold !== 'deezer_100') {
-        if (await AiArtistsServiceInstance.hasDeezerArtist(id))
-          return { ai: true }
-        if (
-          threshold === 'any' &&
-          (await AiArtistsServiceInstance.hasSlopless(id))
-        )
-          return { ai: true }
-      } else {
-        if (await AiArtistsServiceInstance.hasDeezerArtist100(id))
-          return { ai: true }
+      const artist = await SloplessApiInstance.checkArtist(id)
+      if (artist !== null && artist.ai) {
+        if (!strictTracks || !trackId) return { ai: true }
+
+        const track = await SloplessApiInstance.checkTrack(trackId)
+        if (track !== null && track.ai) return { ai: true }
+        return { ai: false }
       }
     }
 

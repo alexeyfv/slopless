@@ -5,15 +5,9 @@
 Click the language button in the top-right corner of the extension window.
 You can choose between English and Russian.
 
-## What do the different data source levels mean?
+## How does Slopless detect AI music?
 
-Slopless has two data sources. Learn more [here](/detection). The combination of data sources lets you fine-tune the labeling.
-
-| Source                   | Labeling                                                                                            |
-| ------------------------ | --------------------------------------------------------------------------------------------------- |
-| **Deezer + Slopless**    | Labels artists with at least one AI release on Deezer and artists detected by Slopless as using AI. |
-| **Deezer only**          | Labels artists with at least one AI release on Deezer.                                              |
-| **Deezer only (strict)** | Labels artists where 100% of releases are marked as AI on Deezer.                                   |
+TODO
 
 ## What's the difference between the actions?
 

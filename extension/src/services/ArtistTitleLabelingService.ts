@@ -1,4 +1,4 @@
-import ArtistLabelingService, { Artist } from '@/services/ArtistLabelingService'
+import AiLabelingService, { Artist } from '@/services/AiLabelingService'
 
 /**
  * Adds "AI" label to the title on the artist page.
@@ -6,7 +6,7 @@ import ArtistLabelingService, { Artist } from '@/services/ArtistLabelingService'
  * The main difference from the ArtistLabelingService is that the title is not a link
  * and we need to get the artist ID from the URL of the page, not from the link itself.
  */
-export class ArtistTitleLabelingService extends ArtistLabelingService {
+export class ArtistTitleLabelingService extends AiLabelingService {
   protected getLabelStyles(
     borderColor: string,
     bgColor: string,

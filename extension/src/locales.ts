@@ -38,31 +38,19 @@ const messages: Record<Locale, Record<string, string>> = {
     switch_desc:
       'Когда включено, Slopless выполняет действия только с ИИ-треками артиста. Полезно, когда не все релизы артиста сгенерированы ИИ.',
 
-    threshold_label: 'Маркировка',
-
-    'threshold.any': 'Deezer + Slopless',
-    'threshold.deezer_any': 'Только Deezer',
-    'threshold.deezer_100': 'Только Deezer (строгий)',
-
-    'desc.threshold.any':
-      'Маркирует артистов, если есть хотя бы один ИИ-релиз в Deezer и артистов, определённых Slopless как использующих ИИ.',
-    'desc.threshold.deezer_any':
-      'Маркирует артистов, если есть хотя бы один ИИ-релиз в Deezer.',
-    'desc.threshold.deezer_100':
-      'Маркирует артистов, у которых 100% релизов отмечены в Deezer как ИИ.',
-
     learn_link: 'Узнать, как определяется ИИ-музыка.',
 
-    loading: 'Загрузка базы данных...',
-    display_text: 'Slopless будет проверять {count} исполнителей ({pct}% базы)',
+    loading: 'Загрузка...',
+    display_text: 'В базе данных Slopless сейчас {count} ИИ-треков',
 
     'locale.ru': '🇷🇺 Ру',
     'locale.en': '🇬🇧 En',
 
     'artist.label': 'ИИ',
-    'tooltip.deezer': 'У этого артиста есть треки, созданные с помощью ИИ',
-    'tooltip.slopless':
-      'У этого артиста, скорее всего, есть треки, созданные с помощью ИИ',
+    'tooltip.ai': 'У этого артиста есть треки, созданные с помощью ИИ',
+
+    'track.label': 'ИИ',
+    'tooltip.track_ai': 'Этот трек создан с помощью ИИ',
 
     popup_title: 'Slopless',
 
@@ -109,32 +97,20 @@ const messages: Record<Locale, Record<string, string>> = {
     switch_desc:
       "When enabled, Slopless only acts on the artist's AI tracks. Useful when not all of an artist's releases are AI-generated.",
 
-    threshold_label: 'Labeling',
-
-    'threshold.any': 'Deezer + Slopless',
-    'threshold.deezer_any': 'Deezer only',
-    'threshold.deezer_100': 'Deezer only (strict)',
-
-    'desc.threshold.any':
-      'Labels artists with at least one AI release on Deezer and artists detected by Slopless as using AI.',
-    'desc.threshold.deezer_any':
-      'Labels artists with at least one AI release on Deezer.',
-    'desc.threshold.deezer_100':
-      'Labels artists where 100% of releases are marked as AI on Deezer.',
-
     learn_link: 'Learn how AI music is detected.',
 
-    loading: 'Loading database...',
-    display_text: 'Slopless will check {count} artists ({pct}% of database)',
+    loading: 'Loading...',
+    display_text: 'Slopless database has {count} AI artists',
 
     'locale.ru': '🇷🇺 Ру',
     'locale.en': '🇬🇧 En',
 
     'artist.label': 'AI',
-    'tooltip.deezer':
+    'tooltip.ai':
       'This artist has tracks that were generated with the use of AI',
-    'tooltip.slopless':
-      'This artist most probably has tracks that were generated with the use of AI',
+
+    'track.label': 'AI',
+    'tooltip.track_ai': 'This track was generated with the use of AI',
 
     popup_title: 'Slopless',
 

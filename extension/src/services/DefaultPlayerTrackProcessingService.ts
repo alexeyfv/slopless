@@ -83,7 +83,8 @@ export default class DefaultPlayerTrackProcessingService {
 
     try {
       const { ai } = await sendMessage('checkAiStatus', {
-        artistIds: artists.map(a => a.artistId)
+        artistIds: artists.map(a => a.artistId),
+        trackId
       })
 
       if (!ai) {

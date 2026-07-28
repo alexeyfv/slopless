@@ -1,6 +1,6 @@
 import { sendMessage } from '@/messaging'
 import { extensionStorage, DEFAULT_LOCALE } from '@/storage'
-import type { VerifyRequest, VerifyResult } from '../types/Messages'
+import type { ArtistVerifyRequest, ArtistVerifyResult, TrackVerifyRequest, TrackVerifyResult } from '../types/Messages'
 import type { Locale } from '../storage'
 import { t } from '@/locales'
 
@@ -11,10 +11,14 @@ export type Artist = {
   labelTarget: HTMLElement
 }
 
-/**
- * Adds "AI" label to artists on any appearance of their name on the page.
- */
-export default class ArtistLabelingService {
+export type Track = {
+  trackId: string
+  trackHref: string
+  trackName: string
+  labelTarget: HTMLElement
+}
+
+export default class AiLabelingService {
   protected SLOPLESS_LABEL = 'slopless-label'
   protected locale: Locale = DEFAULT_LOCALE
 
@@ -38,48 +42,82 @@ export default class ArtistLabelingService {
     )
   }
 
+  protected getTrackElements(): HTMLAnchorElement[] {
+    return Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('a[href*="/track/"]')
+    )
+  }
+
+  protected getTrack(element: HTMLAnchorElement): Track {
+    const trackHref = element.href
+    const trackName = element.textContent
+    const i = trackHref.lastIndexOf('/')
+    const trackId = trackHref.substring(i + 1)
+
+    return {
+      trackId,
+      trackHref,
+      trackName,
+      labelTarget: element
+    }
+  }
+
   protected async scan() {
-    // 1. Collect all artist links on the page
     const elements = this.getElements()
+
+    if (elements.length > 0) {
+      const artists = elements.map(this.getArtist)
+
+      const request: ArtistVerifyRequest[] = artists.map(a => {
+        return {
+          artistId: a.artistId
+        }
+      })
+
+      const result = await sendMessage('artistFound', request)
+
+      this.addSloplessLabel(artists, result)
+    }
+
+    await this.scanTracks()
+  }
+
+  protected async scanTracks() {
+    const elements = this.getTrackElements()
 
     if (elements.length === 0) {
       return
     }
 
-    // 2. Extract artist info
-    const artists = elements.map(this.getArtist)
+    const tracks = elements.map(this.getTrack)
 
-    // 3. Report artists to background script if they differ from the last report
-    const request: VerifyRequest[] = artists.map(a => {
+    const request: TrackVerifyRequest[] = tracks.map(t => {
       return {
-        artistId: a.artistId
+        trackId: t.trackId
       }
     })
 
-    const result = await sendMessage('artistFound', request)
+    const result = await sendMessage('trackFound', request)
 
-    this.addSloplessLabel(artists, result)
+    this.addTrackLabel(tracks, result)
   }
 
   protected addSloplessLabel(
     artists: Artist[],
-    verifyResult: VerifyResult[]
+    verifyResult: ArtistVerifyResult[]
   ): void {
-    // Create a map for faster lookups
-    const map = new Map<string, VerifyResult>()
+    const map = new Map<string, ArtistVerifyResult>()
     for (const result of verifyResult) {
       map.set(result.artistId, result)
     }
 
     for (const a of artists) {
-      // 1. Check the artists status
       const result = map.get(a.artistId)
 
       if (!result || !result.ai) {
         continue
       }
 
-      // 2. Check if label already exists to avoid duplicates
       const container = a.labelTarget
       const existingLabel = container.querySelector<HTMLSpanElement>(
         'span.' + this.SLOPLESS_LABEL
@@ -89,9 +127,38 @@ export default class ArtistLabelingService {
         continue
       }
 
-      // 2. Create and insert label
-      const label = this.createLabel(result.source)
+      const label = this.createLabel()
       a.labelTarget.insertAdjacentElement('beforeend', label)
+    }
+  }
+
+  protected addTrackLabel(
+    tracks: Track[],
+    verifyResult: TrackVerifyResult[]
+  ): void {
+    const map = new Map<string, TrackVerifyResult>()
+    for (const result of verifyResult) {
+      map.set(result.trackId, result)
+    }
+
+    for (const t of tracks) {
+      const result = map.get(t.trackId)
+
+      if (!result || !result.ai) {
+        continue
+      }
+
+      const container = t.labelTarget
+      const existingLabel = container.querySelector<HTMLSpanElement>(
+        'span.' + this.SLOPLESS_LABEL
+      )
+
+      if (existingLabel) {
+        continue
+      }
+
+      const label = this.createLabel('track.label', 'tooltip.track_ai')
+      t.labelTarget.insertAdjacentElement('beforeend', label)
     }
   }
 
@@ -111,31 +178,19 @@ export default class ArtistLabelingService {
     ]
   }
 
-  protected createLabel(source: 'deezer' | 'slopless' | null) {
-    const isSlopless = source === 'slopless'
-
-    const borderColor = isSlopless ? 'rgb(245 158 11)' : 'rgb(239 68 68)'
-    const bgColor = isSlopless
-      ? 'rgba(245 158 11 / 0.12)'
-      : 'rgba(239 68 68 / 0.12)'
-    const textColor = isSlopless ? 'rgb(245 158 11)' : 'rgb(239 68 68)'
-
-    const tooltipKey =
-      source === 'deezer'
-        ? 'tooltip.deezer'
-        : source === 'slopless'
-          ? 'tooltip.slopless'
-          : null
+  protected createLabel(labelKey = 'artist.label', tooltipKey = 'tooltip.ai') {
+    const borderColor = 'rgb(239 68 68)'
+    const bgColor = 'rgba(239 68 68 / 0.12)'
+    const textColor = 'rgb(239 68 68)'
 
     const slopLabel = document.createElement('span')
 
     const styles = this.getLabelStyles(borderColor, bgColor, textColor)
 
     slopLabel.className = this.SLOPLESS_LABEL
-    slopLabel.textContent = t(this.locale, 'artist.label')
+    slopLabel.textContent = t(this.locale, labelKey)
     slopLabel.style.cssText = styles.join('; ')
-
-    if (tooltipKey) slopLabel.title = t(this.locale, tooltipKey)
+    slopLabel.title = t(this.locale, tooltipKey)
 
     return slopLabel
   }

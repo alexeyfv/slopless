@@ -1,9 +1,21 @@
-export type VerifyRequest = {
+export type ArtistVerifyRequest = {
   artistId: string
 }
 
-export type VerifyResult = {
+export type ArtistVerifyResult = {
   artistId: string
   ai: boolean
-  source: 'deezer' | 'slopless' | null
+  aiTracks: number
+  totalTracks: number
+  name: string
+}
+
+export type TrackVerifyRequest = {
+  trackId: string
+}
+
+export type TrackVerifyResult = {
+  trackId: string
+  ai: boolean
+  score: number | null
 }

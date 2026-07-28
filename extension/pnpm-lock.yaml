@@ -24,6 +24,9 @@ importers:
       '@webext-core/storage':
         specifier: ^1.2.1
         version: 1.2.1
+      lru-cache:
+        specifier: 11.5.2
+        version: 11.5.2
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -2709,6 +2712,13 @@ packages:
       }
     engines: { node: '>=18' }
 
+  lru-cache@11.5.2:
+    resolution:
+      {
+        integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==
+      }
+    engines: { node: 20 || >=22 }
+
   magic-string@0.30.21:
     resolution:
       {
@@ -5379,6 +5389,8 @@ snapshots:
       slice-ansi: 7.1.2
       strip-ansi: 7.2.0
       wrap-ansi: 9.0.2
+
+  lru-cache@11.5.2: {}
 
   magic-string@0.30.21:
     dependencies:

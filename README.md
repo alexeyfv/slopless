@@ -66,17 +66,11 @@ pnpm zip:firefox
 
 1. Update `version` in [`extension/package.json`](./extension/package.json).
 
-2. Create `data/v<version>.json.gz` with the new format
-   and update `SOURCE_URL` in [`AiArtistsService.ts`](./extension/src/services/AiArtistsService.ts) if the JSON data format changed.
-
-    The filename should match the extension version when the format was introduced (e.g. `v0.2.0.json.gz`). Overwrite the same file if only the data refreshes.
-
-3. From the repository root, tag and push:
+2. From the repository root, tag and push:
 
     ```sh
     git tag -a v* -m "Slopless v*"
     git push origin v*
     ```
 
-    The [`release.yaml`](./.github/workflows/release.yaml) workflow runs necessary scripts automatically when a `v*` tag is
-    published.
+    The release workflow runs necessary scripts automatically when a `v*` tag is published.
