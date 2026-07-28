@@ -8,6 +8,8 @@
     DEFAULT_BEHAVIOR,
     DEFAULT_STRICT_TRACKS,
     DEFAULT_LOCALE,
+    DEFAULT_SHOW_ARTIST_LABELS,
+    DEFAULT_SHOW_TRACK_LABELS,
     extensionStorage
   } from '../../storage'
   import type { AiMusicBehavior, Locale } from '../../storage'
@@ -17,6 +19,8 @@
   let behavior: AiMusicBehavior = DEFAULT_BEHAVIOR
   let strictTracks = DEFAULT_STRICT_TRACKS
   let locale: Locale = DEFAULT_LOCALE
+  let showArtistLabels = DEFAULT_SHOW_ARTIST_LABELS
+  let showTrackLabels = DEFAULT_SHOW_TRACK_LABELS
   let dislikesUrl = 'https://music.yandex.com/collection/dislikes?tab=tracks'
   let displayText = ''
 
@@ -70,12 +74,34 @@
     await extensionStorage.setItem('locale', value)
   }
 
+  const loadShowArtistLabels = async () => {
+    const saved = await extensionStorage.getItem('show-artist-labels')
+    showArtistLabels = saved ?? DEFAULT_SHOW_ARTIST_LABELS
+  }
+
+  const saveShowArtistLabels = async (value: boolean) => {
+    showArtistLabels = value
+    await extensionStorage.setItem('show-artist-labels', value)
+  }
+
+  const loadShowTrackLabels = async () => {
+    const saved = await extensionStorage.getItem('show-track-labels')
+    showTrackLabels = saved ?? DEFAULT_SHOW_TRACK_LABELS
+  }
+
+  const saveShowTrackLabels = async (value: boolean) => {
+    showTrackLabels = value
+    await extensionStorage.setItem('show-track-labels', value)
+  }
+
   onMount(() => {
     void resolveDislikesUrl()
     void loadCounts()
     void loadBehavior()
     void loadStrictTracks()
     void loadLocale()
+    void loadShowArtistLabels()
+    void loadShowTrackLabels()
   })
 
   $: document.title = t(locale, 'popup_title')
@@ -94,15 +120,21 @@
 <main class="flex w-135 flex-col gap-4 p-4">
   <!-- Header -->
   <div class="flex items-center gap-2">
-    <h1 class="h1 flex-1">Slopless</h1>
-    <select
-      class="select select-sm w-24"
-      value={locale}
-      onchange={e => saveLocale(e.currentTarget.value as Locale)}
-    >
-      <option value="ru">{t(locale, 'locale.ru')}</option>
-      <option value="en">{t(locale, 'locale.en')}</option>
-    </select>
+    <div class="flex-1">
+      <a class="h1" href="https://slopless.art" target="_blank" rel="noreferrer"
+        >slopless.art</a
+      >
+    </div>
+    <div>
+      <select
+        class="select select-sm w-24"
+        value={locale}
+        onchange={e => saveLocale(e.currentTarget.value as Locale)}
+      >
+        <option value="ru">{t(locale, 'locale.ru')}</option>
+        <option value="en">{t(locale, 'locale.en')}</option>
+      </select>
+    </div>
   </div>
 
   <!-- Form -->
@@ -195,6 +227,34 @@
     </Switch>
     <p class="text-xs opacity-50 -mt-2">
       {t(locale, 'switch_desc')}
+    </p>
+
+    <Switch
+      checked={showArtistLabels}
+      onCheckedChange={details => saveShowArtistLabels(details.checked)}
+    >
+      <Switch.Control>
+        <Switch.Thumb />
+      </Switch.Control>
+      <Switch.Label>{t(locale, 'enable_artist_labels')}</Switch.Label>
+      <Switch.HiddenInput />
+    </Switch>
+    <p class="text-xs opacity-50 -mt-2">
+      {t(locale, 'enable_artist_labels_desc')}
+    </p>
+
+    <Switch
+      checked={showTrackLabels}
+      onCheckedChange={details => saveShowTrackLabels(details.checked)}
+    >
+      <Switch.Control>
+        <Switch.Thumb />
+      </Switch.Control>
+      <Switch.Label>{t(locale, 'enable_track_labels')}</Switch.Label>
+      <Switch.HiddenInput />
+    </Switch>
+    <p class="text-xs opacity-50 -mt-2">
+      {t(locale, 'enable_track_labels_desc')}
     </p>
   </form>
 

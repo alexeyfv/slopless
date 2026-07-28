@@ -1,5 +1,5 @@
 import { sendMessage } from '@/messaging'
-import { extensionStorage, DEFAULT_LOCALE } from '@/storage'
+import { extensionStorage, DEFAULT_LOCALE, DEFAULT_SHOW_ARTIST_LABELS, DEFAULT_SHOW_TRACK_LABELS } from '@/storage'
 import type { ArtistVerifyRequest, ArtistVerifyResult, TrackVerifyRequest, TrackVerifyResult } from '../types/Messages'
 import type { Locale } from '../storage'
 import { t } from '@/locales'
@@ -21,6 +21,8 @@ export type Track = {
 export default class AiLabelingService {
   protected SLOPLESS_LABEL = 'slopless-label'
   protected locale: Locale = DEFAULT_LOCALE
+  protected showArtistLabels = DEFAULT_SHOW_ARTIST_LABELS
+  protected showTrackLabels = DEFAULT_SHOW_TRACK_LABELS
 
   protected getArtist(element: HTMLAnchorElement): Artist {
     const artistHref = element.href
@@ -106,6 +108,8 @@ export default class AiLabelingService {
     artists: Artist[],
     verifyResult: ArtistVerifyResult[]
   ): void {
+    if (!this.showArtistLabels) return
+
     const map = new Map<string, ArtistVerifyResult>()
     for (const result of verifyResult) {
       map.set(result.artistId, result)
@@ -136,6 +140,8 @@ export default class AiLabelingService {
     tracks: Track[],
     verifyResult: TrackVerifyResult[]
   ): void {
+    if (!this.showTrackLabels) return
+
     const map = new Map<string, TrackVerifyResult>()
     for (const result of verifyResult) {
       map.set(result.trackId, result)
@@ -210,10 +216,45 @@ export default class AiLabelingService {
     return observer
   }
 
+  protected clearAllLabels() {
+    document.querySelectorAll('span.' + this.SLOPLESS_LABEL).forEach(el => {
+      el.remove()
+    })
+  }
+
+  protected listenStorageChanges() {
+    browser.storage.onChanged.addListener(changes => {
+      let rescan = false
+
+      if (changes['show-artist-labels']) {
+        this.showArtistLabels = changes['show-artist-labels'].newValue ?? DEFAULT_SHOW_ARTIST_LABELS
+        rescan = true
+      }
+
+      if (changes['show-track-labels']) {
+        this.showTrackLabels = changes['show-track-labels'].newValue ?? DEFAULT_SHOW_TRACK_LABELS
+        rescan = true
+      }
+
+      if (rescan) {
+        this.clearAllLabels()
+        void this.scan()
+      }
+    })
+  }
+
   public async start() {
     const saved = await extensionStorage.getItem('locale')
     this.locale = saved === 'ru' || saved === 'en' ? saved : DEFAULT_LOCALE
+
+    const showArtist = await extensionStorage.getItem('show-artist-labels')
+    this.showArtistLabels = showArtist ?? DEFAULT_SHOW_ARTIST_LABELS
+
+    const showTrack = await extensionStorage.getItem('show-track-labels')
+    this.showTrackLabels = showTrack ?? DEFAULT_SHOW_TRACK_LABELS
+
     await this.scan()
     this.observe()
+    this.listenStorageChanges()
   }
 }

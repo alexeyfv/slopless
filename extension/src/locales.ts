@@ -52,6 +52,11 @@ const messages: Record<Locale, Record<string, string>> = {
     'track.label': 'ИИ',
     'tooltip.track_ai': 'Этот трек создан с помощью ИИ',
 
+    'enable_artist_labels': 'Помечать ИИ-артистов',
+    'enable_artist_labels_desc': 'Показывать метку «ИИ» рядом с именами артистов',
+    'enable_track_labels': 'Помечать ИИ-треки',
+    'enable_track_labels_desc': 'Показывать метку «ИИ» рядом с названиями треков',
+
     popup_title: 'Slopless',
 
     github_aria: 'Открыть репозиторий Slopless на GitHub',
@@ -111,6 +116,11 @@ const messages: Record<Locale, Record<string, string>> = {
 
     'track.label': 'AI',
     'tooltip.track_ai': 'This track was generated with the use of AI',
+
+    'enable_artist_labels': 'Label AI artists',
+    'enable_artist_labels_desc': 'Show "AI" badge next to artist names',
+    'enable_track_labels': 'Label AI tracks',
+    'enable_track_labels_desc': 'Show "AI" badge next to track names',
 
     popup_title: 'Slopless',
 

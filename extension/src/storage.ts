@@ -12,11 +12,15 @@ export type AiMusicBehavior =
 export const DEFAULT_BEHAVIOR: AiMusicBehavior = 'dislike'
 export const DEFAULT_STRICT_TRACKS = false
 export const DEFAULT_LOCALE: Locale = 'ru'
+export const DEFAULT_SHOW_ARTIST_LABELS = true
+export const DEFAULT_SHOW_TRACK_LABELS = true
 
 export type ExtensionStorageSchema = {
   locale: Locale
   'ai-music-behavior': AiMusicBehavior
   'ai-action-strict-tracks': boolean
+  'show-artist-labels': boolean
+  'show-track-labels': boolean
 }
 
 export const extensionStorage = defineExtensionStorage<ExtensionStorageSchema>(
