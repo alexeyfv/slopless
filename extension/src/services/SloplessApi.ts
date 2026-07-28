@@ -5,6 +5,8 @@ type CacheValue = Record<string, unknown>
 
 const NOT_FOUND: CacheValue = Object.freeze({})
 
+const AI_ARTIST_THRESHOLD = 0.05 // 5% of total tracks
+
 class SloplessApi {
   private readonly cache = new LRUCache<string, CacheValue>({
     max: 10000,
@@ -64,7 +66,9 @@ class SloplessApi {
     if (!data) return null
 
     return {
-      ai: data.aiTracks > 0,
+      ai: data.totalTracks > 0
+        ? data.aiTracks / data.totalTracks >= AI_ARTIST_THRESHOLD
+        : false,
       aiTracks: data.aiTracks,
       totalTracks: data.totalTracks,
       name: data.name
