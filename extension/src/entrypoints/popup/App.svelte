@@ -1,9 +1,6 @@
 <script lang="ts">
-  import IconBrandGithub from '@tabler/icons-svelte/icons/brand-github'
-  import IconBrandTelegram from '@tabler/icons-svelte/icons/brand-telegram'
   import { onMount } from 'svelte'
   import { Switch } from '@skeletonlabs/skeleton-svelte'
-  import { sendMessage } from '../../messaging'
   import {
     DEFAULT_BEHAVIOR,
     DEFAULT_STRICT_TRACKS,
@@ -15,14 +12,12 @@
   import type { AiMusicBehavior, Locale } from '../../storage'
   import { t } from '../../locales'
 
-  let totalAitracks = 0
   let behavior: AiMusicBehavior = DEFAULT_BEHAVIOR
   let strictTracks = DEFAULT_STRICT_TRACKS
   let locale: Locale = DEFAULT_LOCALE
   let showArtistLabels = DEFAULT_SHOW_ARTIST_LABELS
   let showTrackLabels = DEFAULT_SHOW_TRACK_LABELS
   let dislikesUrl = 'https://music.yandex.com/collection/dislikes?tab=tracks'
-  let displayText = ''
 
   const resolveDislikesUrl = async () => {
     try {
@@ -37,11 +32,6 @@
     } catch {
       // Keep the .com default if query fails
     }
-  }
-
-  const loadCounts = async () => {
-    const counts = await sendMessage('getCounts')
-    totalAitracks = counts.totalAiTracks
   }
 
   const loadBehavior = async () => {
@@ -96,7 +86,6 @@
 
   onMount(() => {
     void resolveDislikesUrl()
-    void loadCounts()
     void loadBehavior()
     void loadStrictTracks()
     void loadLocale()
@@ -106,25 +95,12 @@
 
   $: document.title = t(locale, 'popup_title')
 
-  $: {
-    if (totalAitracks === 0) {
-      displayText = t(locale, 'loading')
-    } else {
-      displayText = t(locale, 'display_text', {
-        count: totalAitracks.toLocaleString()
-      })
-    }
-  }
 </script>
 
 <main class="flex w-135 flex-col gap-4 p-4">
   <!-- Header -->
   <div class="flex items-center gap-2">
-    <div class="flex-1">
-      <a class="h1" href="https://slopless.art" target="_blank" rel="noreferrer"
-        >slopless.art</a
-      >
-    </div>
+    <h1 class="h1 flex-1">Slopless</h1>
     <div>
       <select
         class="select select-sm w-24"
@@ -139,15 +115,6 @@
 
   <!-- Form -->
   <form class="mx-auto w-full space-y-4">
-    <p class="text-xs opacity-50">
-      <a
-        class="text-primary-500 underline hover:no-underline"
-        href="https://alexeyfv.github.io/slopless/faq#how-does-slopless-detect-ai-music"
-        target="_blank"
-        rel="noreferrer">{t(locale, 'learn_link')}</a
-      >
-    </p>
-
     <label class="label">
       <span class="label-text">{t(locale, 'behavior_label')}</span>
       <select
@@ -258,30 +225,27 @@
     </p>
   </form>
 
-  <p class="text-xs text-center font-semibold opacity-60">{displayText}</p>
-
-  <footer class="gap-2 flex justify-center">
+  <footer class="flex flex-col items-center gap-1 text-xs opacity-60">
     <a
-      class="btn btn-sm preset-outlined-primary-500 items-center justify-center gap-2"
-      href="https://github.com/alexeyfv/slopless"
-      rel="noreferrer"
+      href="https://slopless.art"
       target="_blank"
-      aria-label={t(locale, 'github_aria')}
-      title={t(locale, 'github_title')}
-    >
-      <IconBrandGithub size={14} />
-      <span>GitHub</span>
-    </a>
-    <a
-      class="btn btn-sm preset-outlined-primary-500 items-center justify-center gap-2"
-      href="https://t.me/yet_another_dev"
       rel="noreferrer"
-      target="_blank"
-      aria-label={t(locale, 'telegram_aria')}
-      title={t(locale, 'telegram_title')}
+      class="hover:underline text-sm">slopless.art</a
     >
-      <IconBrandTelegram size={14} />
-      <span>Telegram</span>
-    </a>
+    <div class="flex gap-1">
+      <a
+        href="https://github.com/alexeyfv/slopless"
+        target="_blank"
+        rel="noreferrer"
+        class="hover:underline">github.com</a
+      >
+      <span>&middot;</span>
+      <a
+        href="https://t.me/yet_another_dev"
+        target="_blank"
+        rel="noreferrer"
+        class="hover:underline">t.me</a
+      >
+    </div>
   </footer>
 </main>

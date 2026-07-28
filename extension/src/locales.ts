@@ -38,11 +38,6 @@ const messages: Record<Locale, Record<string, string>> = {
     switch_desc:
       'Когда включено, Slopless выполняет действия только с ИИ-треками артиста. Полезно, когда не все релизы артиста сгенерированы ИИ.',
 
-    learn_link: 'Узнать, как определяется ИИ-музыка.',
-
-    loading: 'Загрузка...',
-    display_text: 'В базе данных Slopless сейчас {count} ИИ-треков',
-
     'locale.ru': '🇷🇺 Ру',
     'locale.en': '🇬🇧 En',
 
@@ -59,10 +54,6 @@ const messages: Record<Locale, Record<string, string>> = {
 
     popup_title: 'Slopless',
 
-    github_aria: 'Открыть репозиторий Slopless на GitHub',
-    telegram_aria: 'Открыть Telegram-канал Slopless',
-    github_title: 'GitHub',
-    telegram_title: 'Telegram'
   },
 
   en: {
@@ -102,11 +93,6 @@ const messages: Record<Locale, Record<string, string>> = {
     switch_desc:
       "When enabled, Slopless only acts on the artist's AI tracks. Useful when not all of an artist's releases are AI-generated.",
 
-    learn_link: 'Learn how AI music is detected.',
-
-    loading: 'Loading...',
-    display_text: 'Slopless database has {count} AI artists',
-
     'locale.ru': '🇷🇺 Ру',
     'locale.en': '🇬🇧 En',
 
@@ -124,10 +110,6 @@ const messages: Record<Locale, Record<string, string>> = {
 
     popup_title: 'Slopless',
 
-    github_aria: 'Open the Slopless GitHub repository',
-    telegram_aria: 'Open the Slopless Telegram channel',
-    github_title: 'GitHub',
-    telegram_title: 'Telegram'
   }
 }
 
