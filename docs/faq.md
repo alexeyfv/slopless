@@ -1,3 +1,7 @@
+---
+description: Frequently asked questions about the Slopless browser extension — how AI detection works, privacy, auto-dislike, and more.
+---
+
 # FAQ
 
 ## How do I switch the language?

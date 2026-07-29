@@ -1,5 +1,6 @@
 ---
 layout: home
+description: Install the Slopless browser extension for Yandex Music. Automatically detects and labels AI-generated artists and tracks.
 
 hero:
   name: 'Slopless'

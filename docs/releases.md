@@ -1,3 +1,7 @@
+---
+description: Release history for the Slopless browser extension — new features and changes.
+---
+
 # Releases
 
 ## v0.3.0
