@@ -1,5 +1,12 @@
 # Releases
 
+## v0.3.0
+
+### New features
+
+- Slopless now uses its own AI-music classifier.
+- Separate labeling for AI-artists and AI-tracks.
+
 ## v0.2.5
 
 ### Fixes
