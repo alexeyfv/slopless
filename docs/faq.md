@@ -11,7 +11,7 @@ Slopless uses a custom AI-music detector inspired by the Deezer Research team's 
 
 The detector uses the first derivative (forward difference) combined with principal component analysis to detect AI-music artifacts.
 
-More information can be found in the classifier's [GitHub repository](https://github.com/alexeyfv/slopless/tree/main/classifierhttps://github.com/alexeyfv/slopless/tree/main/classifier) and in this [article](https://alexeyfv.xyz/en/post/2026-07-02-ai-music-classifier).
+More information can be found in the classifier's [GitHub repository](https://github.com/alexeyfv/slopless/tree/main/classifie) and in this [article](https://alexeyfv.xyz/en/post/2026-07-02-ai-music-classifier).
 
 ## What's the difference between the actions?
 
