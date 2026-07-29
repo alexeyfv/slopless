@@ -7,7 +7,11 @@ You can choose between English and Russian.
 
 ## How does Slopless detect AI music?
 
-TODO
+Slopless uses a custom AI-music detector inspired by the Deezer Research team's ISMIR 2025 paper "[A Fourier Explanation of AI-music Artifacts](https://arxiv.org/abs/2506.19108)" (Darius Afchar, Gabriel Meseguer-Brocal, Kamil Akesbi, Romain Hennequin).
+
+The detector uses the first derivative (forward difference) combined with principal component analysis to detect AI-music artifacts.
+
+More information can be found in the classifier's [GitHub repository](https://github.com/alexeyfv/slopless/tree/main/classifierhttps://github.com/alexeyfv/slopless/tree/main/classifier) and in this [article](https://alexeyfv.xyz/en/post/2026-07-02-ai-music-classifier).
 
 ## What's the difference between the actions?
 
@@ -30,4 +34,4 @@ No. Slopless does **not** collect, store, or transmit any personal or sensitive 
 
 ## Still have questions?
 
-Open an issue on [GitHub](https://github.com/alexeyfv/slopless/issues).
+Ask them in [Telegram-channel](https://t.me/yet_another_dev) or open an issue on [GitHub](https://github.com/alexeyfv/slopless/issues).

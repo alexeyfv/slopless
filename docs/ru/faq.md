@@ -7,7 +7,11 @@
 
 ## Как Slopless обнаруживает ИИ-музыку?
 
-TODO
+Slopless использует собственный детектор AI-музыки, реализация которого вдохновлена докладом исследователей Deezer, представленным на ISMIR 2025: «[A Fourier Explanation of AI-Music Artifacts](https://arxiv.org/abs/2506.19108)» (Darius Afchar, Gabriel Meseguer-Brocal, Kamil Akesbi и Romain Hennequin).
+
+Детектор использует первую дискретную производную в сочетании с методом главных компонент (PCA) для обнаружения артефактов, характерных для AI-музыки.
+
+Более подробную информацию можно найти в [GitHub-репозитории](https://github.com/alexeyfv/slopless/tree/main/classifier) классификатора и в этой [статье](https://alexeyfv.xyz/ru/post/2026-07-02-ai-music-classifier).
 
 ## Чем отличаются действия?
 
@@ -31,4 +35,4 @@ TODO
 
 ## Остались вопросы?
 
-Откройте issue на [GitHub](https://github.com/alexeyfv/slopless/issues).
+Задайте их в [Telegram-канале](https://t.me/yet_another_dev) или откройте issue на [GitHub](https://github.com/alexeyfv/slopless/issues).
