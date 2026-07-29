@@ -21,6 +21,6 @@ features:
     details: Marks AI artists so you can spot them quickly.
   - title: Auto-dislike
     details: Automatically dislike or skip AI-generated tracks.
-  - title: 140,000+ AI artists
-    details: Slopless already has over 140,000 AI artists in its database, and it keeps growing.
+  - title: 100,000+ AI artists
+    details: Slopless already has over 100,000 AI artists in its database, and it keeps growing.
 ---
