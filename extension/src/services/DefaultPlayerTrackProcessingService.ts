@@ -12,7 +12,7 @@ export type Artist = {
  * Handles tracks while they are playing in default player.
  */
 export default class DefaultPlayerTrackProcessingService {
-  // Prevents processing the same track multiple times when MutationObserver triggers again after a button click
+  private scanning = false
   private currentTrackId: string | null = null
 
   public async start(): Promise<void> {
@@ -35,98 +35,103 @@ export default class DefaultPlayerTrackProcessingService {
   }
 
   protected async scan(): Promise<void> {
-    const playerBar = document.querySelector<HTMLElement>(
-      '[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"], [class*="PlayerBarDesktopWithBackgroundProgressBar_player__"]'
-    )
-
-    if (!playerBar) {
-      return
-    }
-
-    const behavior =
-      (await extensionStorage.getItem('ai-music-behavior')) ?? DEFAULT_BEHAVIOR
-
-    if (behavior === 'nothing') {
-      return
-    }
-
-    // Collect all artists from the player
-    const elements = Array.from(
-      playerBar.querySelectorAll<HTMLAnchorElement>('a[href^="/artist/"]')
-    )
-
-    if (elements.length === 0) {
-      return
-    }
-
-    const artists = elements.map(this.getArtist)
-
-    const trackElement =
-      playerBar.querySelector<HTMLAnchorElement>('a[href^="/album/"]')
-
-    if (!trackElement) {
-      console.warn('Track element not found in player bar')
-      return
-    }
-
-    const trackHref = trackElement.href
-    const i = trackHref.lastIndexOf('/')
-    const trackId = trackHref.substring(i + 1)
-
-    if (this.currentTrackId === trackId) {
-      return
-    }
-
-    this.currentTrackId = trackId
-
-    let actionTaken = false
-
+    if (this.scanning) return
+    this.scanning = true
     try {
-      const { ai } = await sendMessage('checkAiStatus', {
-        artistIds: artists.map(a => a.artistId),
-        trackId
-      })
+      const playerBar = document.querySelector<HTMLElement>(
+        '[class*="PlayerBarDesktopWithBackgroundProgressBar_root__"], [class*="PlayerBarDesktopWithBackgroundProgressBar_player__"]'
+      )
 
-      if (!ai) {
+      if (!playerBar) {
         return
       }
 
-      // Wait a bit before new action
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const behavior =
+        (await extensionStorage.getItem('ai-music-behavior')) ?? DEFAULT_BEHAVIOR
 
-      if (behavior === 'dislike' || behavior === 'dislike_if_not_liked') {
-        if (behavior === 'dislike_if_not_liked' && (await this.isLiked())) {
-          actionTaken = false
-        } else {
+      if (behavior === 'nothing') {
+        return
+      }
+
+      // Collect all artists from the player
+      const elements = Array.from(
+        playerBar.querySelectorAll<HTMLAnchorElement>('a[href^="/artist/"]')
+      )
+
+      if (elements.length === 0) {
+        return
+      }
+
+      const artists = elements.map(this.getArtist)
+
+      const trackElement =
+        playerBar.querySelector<HTMLAnchorElement>('a[href^="/album/"]')
+
+      if (!trackElement) {
+        console.warn('Track element not found in player bar')
+        return
+      }
+
+      const trackHref = trackElement.href
+      const i = trackHref.lastIndexOf('/')
+      const trackId = trackHref.substring(i + 1)
+
+      if (this.currentTrackId === trackId) {
+        return
+      }
+
+      this.currentTrackId = trackId
+
+      let actionTaken = false
+
+      try {
+        const { ai } = await sendMessage('checkAiStatus', {
+          artistIds: artists.map(a => a.artistId),
+          trackId
+        })
+
+        if (!ai) {
+          return
+        }
+
+        // Wait a bit before new action
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        if (behavior === 'dislike' || behavior === 'dislike_if_not_liked') {
+          if (behavior === 'dislike_if_not_liked' && (await this.isLiked())) {
+            actionTaken = false
+          } else {
+            actionTaken = await this.clickPlayerButton({
+              pollInterval: 250,
+              buttonSelector: 'button[aria-pressed]',
+              targetSelector: '#dislike_',
+              alreadyDoneSelector: '#disliked_'
+            })
+          }
+        } else if (behavior === 'like') {
           actionTaken = await this.clickPlayerButton({
             pollInterval: 250,
             buttonSelector: 'button[aria-pressed]',
-            targetSelector: '#dislike_',
-            alreadyDoneSelector: '#disliked_'
+            targetSelector: '#like_',
+            alreadyDoneSelector: '#liked_'
           })
+        } else if (behavior === 'skip' || behavior === 'skip_if_not_liked') {
+          if (behavior === 'skip_if_not_liked' && (await this.isLiked())) {
+            actionTaken = false
+          } else {
+            actionTaken = await this.clickPlayerButton({
+              pollInterval: 100,
+              buttonSelector: 'button',
+              targetSelector: '#next_'
+            })
+          }
         }
-      } else if (behavior === 'like') {
-        actionTaken = await this.clickPlayerButton({
-          pollInterval: 250,
-          buttonSelector: 'button[aria-pressed]',
-          targetSelector: '#like_',
-          alreadyDoneSelector: '#liked_'
-        })
-      } else if (behavior === 'skip' || behavior === 'skip_if_not_liked') {
-        if (behavior === 'skip_if_not_liked' && (await this.isLiked())) {
-          actionTaken = false
-        } else {
-          actionTaken = await this.clickPlayerButton({
-            pollInterval: 100,
-            buttonSelector: 'button',
-            targetSelector: '#next_'
-          })
-        }
+      } finally {
+        // Keep currentTrackId unchanged after action to prevent
+        // re-processing the same track while Yandex updates the DOM.
       }
     } finally {
-      if (actionTaken) {
-        this.currentTrackId = null
-      }
+      this.scanning = false
     }
   }
 

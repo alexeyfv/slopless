@@ -12,6 +12,7 @@ export type Artist = {
  * Handles tracks while they are playing in My Vibe player.
  */
 export default class MyVibePlayerTrackProcessingService {
+  private scanning = false
   private currentTrackText: string | null = null
 
   public async start(): Promise<void> {
@@ -34,101 +35,106 @@ export default class MyVibePlayerTrackProcessingService {
   }
 
   protected async scan(): Promise<void> {
-    const myVibePage = document.querySelector<HTMLElement>(
-      '[class*="VibePage_meta__"]'
-    )
-
-    if (!myVibePage) {
-      return
-    }
-
-    const behavior =
-      (await extensionStorage.getItem('ai-music-behavior')) ?? DEFAULT_BEHAVIOR
-
-    if (behavior === 'nothing') {
-      return
-    }
-
-    // Collect all artists from the player
-    const elements = Array.from(
-      myVibePage.querySelectorAll<HTMLAnchorElement>('a[href^="/artist/"]')
-    )
-
-    if (elements.length === 0) {
-      return
-    }
-
-    const artists = elements.map(this.getArtist)
-
-    const trackElement = myVibePage.querySelector<HTMLAnchorElement>(
-      '[class*="VibePlayerbarMeta_trackNameText__"]'
-    )
-
-    if (!trackElement) {
-      console.warn('Track element not found in player bar')
-      return
-    }
-
-    const trackText = trackElement.textContent || ''
-
-    if (!trackText) {
-      return
-    }
-
-    if (this.currentTrackText === trackText) {
-      return
-    }
-
-    this.currentTrackText = trackText
-
-    let actionTaken = false
-
+    if (this.scanning) return
+    this.scanning = true
     try {
-      const { ai } = await sendMessage('checkAiStatus', {
-        artistIds: artists.map(a => a.artistId)
-      })
+      const myVibePage = document.querySelector<HTMLElement>(
+        '[class*="VibePage_meta__"]'
+      )
 
-      if (!ai) {
+      if (!myVibePage) {
         return
       }
 
-      if (behavior === 'dislike' || behavior === 'dislike_if_not_liked') {
-        if (behavior === 'dislike_if_not_liked' && (await this.isLiked())) {
-          actionTaken = false
-        } else {
+      const behavior =
+        (await extensionStorage.getItem('ai-music-behavior')) ?? DEFAULT_BEHAVIOR
+
+      if (behavior === 'nothing') {
+        return
+      }
+
+      // Collect all artists from the player
+      const elements = Array.from(
+        myVibePage.querySelectorAll<HTMLAnchorElement>('a[href^="/artist/"]')
+      )
+
+      if (elements.length === 0) {
+        return
+      }
+
+      const artists = elements.map(this.getArtist)
+
+      const trackElement = myVibePage.querySelector<HTMLAnchorElement>(
+        '[class*="VibePlayerbarMeta_trackNameText__"]'
+      )
+
+      if (!trackElement) {
+        console.warn('Track element not found in player bar')
+        return
+      }
+
+      const trackText = trackElement.textContent || ''
+
+      if (!trackText) {
+        return
+      }
+
+      if (this.currentTrackText === trackText) {
+        return
+      }
+
+      this.currentTrackText = trackText
+
+      let actionTaken = false
+
+      try {
+        const { ai } = await sendMessage('checkAiStatus', {
+          artistIds: artists.map(a => a.artistId)
+        })
+
+        if (!ai) {
+          return
+        }
+
+        if (behavior === 'dislike' || behavior === 'dislike_if_not_liked') {
+          if (behavior === 'dislike_if_not_liked' && (await this.isLiked())) {
+            actionTaken = false
+          } else {
+            actionTaken = await this.clickPlayerButton({
+              pollInterval: 250,
+              buttonSelector: 'button[aria-pressed]',
+              targetSelector: '#dislike_',
+              alreadyDoneSelector: '#disliked_'
+            })
+          }
+        } else if (behavior === 'like') {
           actionTaken = await this.clickPlayerButton({
             pollInterval: 250,
             buttonSelector: 'button[aria-pressed]',
-            targetSelector: '#dislike_',
-            alreadyDoneSelector: '#disliked_'
+            targetSelector: '#like_',
+            alreadyDoneSelector: '#liked_'
           })
+        } else if (behavior === 'skip' || behavior === 'skip_if_not_liked') {
+          if (behavior === 'skip_if_not_liked' && (await this.isLiked())) {
+            actionTaken = false
+          } else {
+            actionTaken = await this.clickPlayerButton({
+              pollInterval: 100,
+              buttonSelector: 'button',
+              targetSelector: '#next_'
+            })
+          }
         }
-      } else if (behavior === 'like') {
-        actionTaken = await this.clickPlayerButton({
-          pollInterval: 250,
-          buttonSelector: 'button[aria-pressed]',
-          targetSelector: '#like_',
-          alreadyDoneSelector: '#liked_'
-        })
-      } else if (behavior === 'skip' || behavior === 'skip_if_not_liked') {
-        if (behavior === 'skip_if_not_liked' && (await this.isLiked())) {
-          actionTaken = false
-        } else {
-          actionTaken = await this.clickPlayerButton({
-            pollInterval: 100,
-            buttonSelector: 'button',
-            targetSelector: '#next_'
-          })
-        }
-      }
 
-      if (actionTaken) {
-        await new Promise(resolve => setTimeout(resolve, 3000))
+        if (actionTaken) {
+          await new Promise(resolve => setTimeout(resolve, 3000))
+        }
+      } finally {
+        // Keep currentTrackText unchanged after action to prevent
+        // re-processing the same track while Yandex updates the DOM.
       }
     } finally {
-      if (actionTaken) {
-        this.currentTrackText = null
-      }
+      this.scanning = false
     }
   }
 
