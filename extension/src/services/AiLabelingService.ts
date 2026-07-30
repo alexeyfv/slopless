@@ -126,20 +126,20 @@ export default class AiLabelingService {
     }
 
     for (const a of artists) {
-      const result = map.get(a.artistId)
-
-      if (!result || !result.ai) {
-        continue
-      }
-
       const container = a.labelTarget
+
       const existingLabel = container.querySelector<HTMLSpanElement>(
         'span.' + this.SLOPLESS_LABEL
       )
 
-      if (existingLabel) {
+      const result = map.get(a.artistId)
+
+      if (!result || !result.ai) {
+        if (existingLabel) existingLabel.remove()
         continue
       }
+
+      if (existingLabel) continue
 
       const label = this.createLabel()
       a.labelTarget.insertAdjacentElement('beforeend', label)
@@ -158,20 +158,20 @@ export default class AiLabelingService {
     }
 
     for (const t of tracks) {
-      const result = map.get(t.trackId)
-
-      if (!result || !result.ai) {
-        continue
-      }
-
       const container = t.labelTarget
+
       const existingLabel = container.querySelector<HTMLSpanElement>(
         'span.' + this.SLOPLESS_LABEL
       )
 
-      if (existingLabel) {
+      const result = map.get(t.trackId)
+
+      if (!result || !result.ai) {
+        if (existingLabel) existingLabel.remove()
         continue
       }
+
+      if (existingLabel) continue
 
       const label = this.createLabel('track.label', 'tooltip.track_ai')
       t.labelTarget.insertAdjacentElement('beforeend', label)
