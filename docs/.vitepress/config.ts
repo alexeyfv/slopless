@@ -30,6 +30,13 @@ export default defineConfig({
         name: 'google-site-verification',
         content: 'jXz7EqyUQHfYnypG5iREgfXAN0yXZ1TVoDUT5MplTDo'
       }
+    ],
+    [
+      'meta',
+      {
+        name: 'yandex-verification',
+        content: '0e5d9ed44dd9f310'
+      }
     ]
   ],
   transformHead: async ({ pageData, siteConfig }) => {
