@@ -4,6 +4,13 @@ description: Release history for the Slopless browser extension — new features
 
 # Releases
 
+## v0.3.1
+
+### Fixes
+
+- Fixed issue with stale AI-labels.
+- Fixed issue with double dislikes (or any other actions).
+
 ## v0.3.0
 
 ### New features
