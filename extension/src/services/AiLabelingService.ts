@@ -235,16 +235,18 @@ export default class AiLabelingService {
   protected listenStorageChanges() {
     browser.storage.onChanged.addListener(changes => {
       let rescan = false
+      const artistChange = changes['show-artist-labels']
+      const trackChange = changes['show-track-labels']
 
-      if (changes['show-artist-labels']) {
+      if (artistChange) {
         this.showArtistLabels =
-          changes['show-artist-labels'].newValue ?? DEFAULT_SHOW_ARTIST_LABELS
+          (artistChange.newValue as boolean) ?? DEFAULT_SHOW_ARTIST_LABELS
         rescan = true
       }
 
-      if (changes['show-track-labels']) {
+      if (trackChange) {
         this.showTrackLabels =
-          changes['show-track-labels'].newValue ?? DEFAULT_SHOW_TRACK_LABELS
+          (trackChange.newValue as boolean) ?? DEFAULT_SHOW_TRACK_LABELS
         rescan = true
       }
 

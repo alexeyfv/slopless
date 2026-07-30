@@ -1,4 +1,5 @@
-import AiLabelingService, { Artist } from '@/services/AiLabelingService'
+import AiLabelingService from '@/services/AiLabelingService'
+import type { Artist } from '@/services/AiLabelingService'
 
 /**
  * Adds "AI" label to the title on the artist page.
@@ -7,7 +8,7 @@ import AiLabelingService, { Artist } from '@/services/AiLabelingService'
  * and we need to get the artist ID from the URL of the page, not from the link itself.
  */
 export class ArtistTitleLabelingService extends AiLabelingService {
-  protected getLabelStyles(
+  protected override getLabelStyles(
     borderColor: string,
     bgColor: string,
     textColor: string
@@ -21,7 +22,7 @@ export class ArtistTitleLabelingService extends AiLabelingService {
       `color: ${textColor}`
     ]
   }
-  protected getElements(): HTMLAnchorElement[] {
+  protected override getElements(): HTMLAnchorElement[] {
     // First, find the element for the artist title
     const titleRoot = document.querySelector<HTMLAnchorElement>(
       'div[class^="PageHeaderTitle_root__"]'
@@ -43,7 +44,7 @@ export class ArtistTitleLabelingService extends AiLabelingService {
     return [title]
   }
 
-  protected getArtist(element: HTMLAnchorElement): Artist {
+  protected override getArtist(element: HTMLAnchorElement): Artist {
     // Since it's not a link, we need to get the artist ID
     // from the URL of the page
     const artistHref = location.href
@@ -59,7 +60,7 @@ export class ArtistTitleLabelingService extends AiLabelingService {
     }
   }
 
-  protected observe(): MutationObserver | null {
+  protected override observe(): MutationObserver | null {
     const observer = new MutationObserver(() => {
       void this.scan()
     })
