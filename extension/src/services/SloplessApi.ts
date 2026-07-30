@@ -66,9 +66,10 @@ class SloplessApi {
     if (!data) return null
 
     return {
-      ai: data.totalTracks > 0
-        ? data.aiTracks / data.totalTracks >= AI_ARTIST_THRESHOLD
-        : false,
+      ai:
+        data.totalTracks > 0
+          ? data.aiTracks / data.totalTracks >= AI_ARTIST_THRESHOLD
+          : false,
       aiTracks: data.aiTracks,
       totalTracks: data.totalTracks,
       name: data.name

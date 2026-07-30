@@ -1,6 +1,16 @@
 import { sendMessage } from '@/messaging'
-import { extensionStorage, DEFAULT_LOCALE, DEFAULT_SHOW_ARTIST_LABELS, DEFAULT_SHOW_TRACK_LABELS } from '@/storage'
-import type { ArtistVerifyRequest, ArtistVerifyResult, TrackVerifyRequest, TrackVerifyResult } from '../types/Messages'
+import {
+  extensionStorage,
+  DEFAULT_LOCALE,
+  DEFAULT_SHOW_ARTIST_LABELS,
+  DEFAULT_SHOW_TRACK_LABELS
+} from '@/storage'
+import type {
+  ArtistVerifyRequest,
+  ArtistVerifyResult,
+  TrackVerifyRequest,
+  TrackVerifyResult
+} from '../types/Messages'
 import type { Locale } from '../storage'
 import { t } from '@/locales'
 
@@ -227,12 +237,14 @@ export default class AiLabelingService {
       let rescan = false
 
       if (changes['show-artist-labels']) {
-        this.showArtistLabels = changes['show-artist-labels'].newValue ?? DEFAULT_SHOW_ARTIST_LABELS
+        this.showArtistLabels =
+          changes['show-artist-labels'].newValue ?? DEFAULT_SHOW_ARTIST_LABELS
         rescan = true
       }
 
       if (changes['show-track-labels']) {
-        this.showTrackLabels = changes['show-track-labels'].newValue ?? DEFAULT_SHOW_TRACK_LABELS
+        this.showTrackLabels =
+          changes['show-track-labels'].newValue ?? DEFAULT_SHOW_TRACK_LABELS
         rescan = true
       }
 

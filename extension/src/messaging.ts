@@ -1,4 +1,9 @@
-import { ArtistVerifyRequest, ArtistVerifyResult, TrackVerifyRequest, TrackVerifyResult } from '@/types/Messages'
+import {
+  ArtistVerifyRequest,
+  ArtistVerifyResult,
+  TrackVerifyRequest,
+  TrackVerifyResult
+} from '@/types/Messages'
 import { defineExtensionMessaging } from '@webext-core/messaging'
 
 type CheckAiStatusRequest = {
