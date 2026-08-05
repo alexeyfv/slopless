@@ -65,7 +65,7 @@ export default class DefaultPlayerTrackProcessingService {
       const artists = elements.map(this.getArtist)
 
       const trackElement =
-        playerBar.querySelector<HTMLAnchorElement>('a[href^="/album/"]')
+        playerBar.querySelector<HTMLAnchorElement>('a[href^="/track/"]')
 
       if (!trackElement) {
         console.warn('Track element not found in player bar')
