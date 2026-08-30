@@ -4,6 +4,12 @@ description: Release history for the Slopless browser extension — new features
 
 # Releases
 
+## v0.3.2
+
+### New features
+
+- Added a feedback bot for reporting incorrect labeling.
+
 ## v0.3.1
 
 ### Fixes

@@ -3,7 +3,7 @@
   "description": "Keep your music free of AI slop.",
   "private": true,
   "license": "MIT",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
   "scripts": {
     "dev": "wxt",
