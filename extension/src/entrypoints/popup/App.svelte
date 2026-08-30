@@ -94,7 +94,6 @@
   })
 
   $: document.title = t(locale, 'popup_title')
-
 </script>
 
 <main class="flex w-135 flex-col gap-4 p-4">
@@ -247,5 +246,11 @@
         class="hover:underline">t.me</a
       >
     </div>
+    <a
+      href="https://t.me/slopless_feedback_bot"
+      target="_blank"
+      rel="noreferrer"
+      class="hover:underline">{t(locale, 'feedback_link')}</a
+    >
   </footer>
 </main>

@@ -51,6 +51,7 @@ const messages: Record<Locale, Record<string, string>> = {
     enable_artist_labels_desc: 'Показывать метку «ИИ» рядом с именами артистов',
     enable_track_labels: 'Помечать ИИ-треки',
     enable_track_labels_desc: 'Показывать метку «ИИ» рядом с названиями треков',
+    feedback_link: 'Сообщить об ошибке в маркировке',
 
     popup_title: 'Slopless'
   },
@@ -106,6 +107,7 @@ const messages: Record<Locale, Record<string, string>> = {
     enable_artist_labels_desc: 'Show "AI" badge next to artist names',
     enable_track_labels: 'Label AI tracks',
     enable_track_labels_desc: 'Show "AI" badge next to track names',
+    feedback_link: 'Report a labeling error',
 
     popup_title: 'Slopless'
   }

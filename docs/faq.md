@@ -36,6 +36,10 @@ When enabled, Slopless only acts on the artist's AI tracks. Useful when not all 
 
 No. Slopless does **not** collect, store, or transmit any personal or sensitive user data.
 
+## What if I find a mistake in labeling?
+
+If Slopless incorrectly labels a track or artist as AI-generated, or misses an AI-generated track or artist, report through the [feedback bot on Telegram](https://t.me/slopless_feedback_bot).
+
 ## Still have questions?
 
 Ask them in [Telegram-channel](https://t.me/yet_another_dev) or open an issue on [GitHub](https://github.com/alexeyfv/slopless/issues).
