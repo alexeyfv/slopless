@@ -1,5 +1,5 @@
 ---
-name: release
+name: create-release
 description: Use when the user asks to create a release, bump version, tag, or publish a new version of the Slopless browser extension.
 ---
 
