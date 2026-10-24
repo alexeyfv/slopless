@@ -1,21 +1,51 @@
 import { SloplessApiInstance } from '@/services/SloplessApi'
+import {
+  decideArtist,
+  decideTrack,
+  shouldTakeAutomaticAction,
+  type SourceSettings
+} from '@/services/AiLabelingPolicy'
+import type { ArtistData } from '@/types/Api'
 import type { ArtistVerifyResult } from '../types/Messages'
 import { onMessage } from '@/messaging'
-import { DEFAULT_STRICT_TRACKS, extensionStorage } from '@/storage'
+import {
+  DEFAULT_STRICT_TRACKS,
+  DEFAULT_USE_SLOPLESS_LABELING,
+  DEFAULT_USE_YANDEX_LABELING,
+  extensionStorage
+} from '@/storage'
+
+async function getSourceSettings(): Promise<SourceSettings> {
+  const useSlopless = await extensionStorage.getItem('use-slopless-labeling')
+  const useYandex = await extensionStorage.getItem('use-yandex-labeling')
+
+  return {
+    useSlopless: useSlopless ?? DEFAULT_USE_SLOPLESS_LABELING,
+    useYandex: useYandex ?? DEFAULT_USE_YANDEX_LABELING
+  }
+}
 
 let lastResult: ArtistVerifyResult[] | null = null
 
 export default defineBackground(() => {
   onMessage('artistFound', async message => {
+    const { useSlopless, useYandex } = await getSourceSettings()
+
     lastResult = await Promise.all(
       message.data.map(async req => {
         const id = req.artistId
-        const result = await SloplessApiInstance.checkArtist(id)
+        const result = await SloplessApiInstance.getArtist(id)
+        const decision = result
+          ? decideArtist(result, { useSlopless, useYandex })
+          : null
         return {
           artistId: id,
-          ai: result !== null && result.ai,
+          ai: decision?.ai ?? false,
           aiTracks: result?.aiTracks ?? 0,
           totalTracks: result?.totalTracks ?? 0,
+          yandexAiTracks: result?.yandexAiTracks ?? 0,
+          yandexCheckedTracks: result?.yandexCheckedTracks ?? 0,
+          yandexAiTrackList: result?.yandexAiTrackList ?? [],
           name: result?.name ?? ''
         }
       })
@@ -25,13 +55,19 @@ export default defineBackground(() => {
   })
 
   onMessage('trackFound', async message => {
+    const { useSlopless, useYandex } = await getSourceSettings()
+
     return await Promise.all(
       message.data.map(async req => {
-        const result = await SloplessApiInstance.checkTrack(req.trackId)
+        const result = await SloplessApiInstance.getTrack(req.trackId)
+        const decision = result
+          ? decideTrack(result, { useSlopless, useYandex })
+          : null
         return {
           trackId: req.trackId,
-          ai: result !== null && result.ai,
-          score: result?.score ?? null
+          ai: decision?.ai ?? false,
+          score: result?.score ?? null,
+          scoreYandex: result?.scoreYandex ?? null
         }
       })
     )
@@ -52,21 +88,23 @@ export default defineBackground(() => {
 
   onMessage('checkAiStatus', async message => {
     const { artistIds, trackId } = message.data
+    const { useSlopless, useYandex } = await getSourceSettings()
     const strictTracks =
       (await extensionStorage.getItem('ai-action-strict-tracks')) ??
       DEFAULT_STRICT_TRACKS
 
-    for (const id of artistIds) {
-      const artist = await SloplessApiInstance.checkArtist(id)
-      if (artist !== null && artist.ai) {
-        if (!strictTracks || !trackId) return { ai: true }
+    const artists = (
+      await Promise.all(artistIds.map(id => SloplessApiInstance.getArtist(id)))
+    ).filter((artist): artist is ArtistData => artist !== null)
+    const track = trackId ? await SloplessApiInstance.getTrack(trackId) : null
 
-        const track = await SloplessApiInstance.checkTrack(trackId)
-        if (track !== null && track.ai) return { ai: true }
-        return { ai: false }
-      }
+    return {
+      ai: shouldTakeAutomaticAction(
+        artists,
+        track,
+        { useSlopless, useYandex },
+        strictTracks
+      )
     }
-
-    return { ai: false }
   })
 })

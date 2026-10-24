@@ -1,11 +1,10 @@
 import { LRUCache } from 'lru-cache'
 import { API_BASE } from '@/types/Domains'
+import type { ArtistData, TrackData } from '@/types/Api'
 
-type CacheValue = Record<string, unknown>
+type CacheValue = object
 
 const NOT_FOUND: CacheValue = Object.freeze({})
-
-const AI_ARTIST_THRESHOLD = 0.05 // 5% of total tracks
 
 class SloplessApi {
   private readonly cache = new LRUCache<string, CacheValue>({
@@ -50,47 +49,18 @@ class SloplessApi {
     return promise
   }
 
-  async checkArtist(artistId: string): Promise<{
-    ai: boolean
-    aiTracks: number
-    totalTracks: number
-    name: string
-  } | null> {
-    const data = await this.fetchWithDedup<{
-      id: number
-      name: string
-      aiTracks: number
-      totalTracks: number
-    }>(`artist:${artistId}`, `${API_BASE}/api/artist/${artistId}`)
-
-    if (!data) return null
-
-    return {
-      ai:
-        data.totalTracks > 0
-          ? data.aiTracks / data.totalTracks >= AI_ARTIST_THRESHOLD
-          : false,
-      aiTracks: data.aiTracks,
-      totalTracks: data.totalTracks,
-      name: data.name
-    }
+  async getArtist(artistId: string): Promise<ArtistData | null> {
+    return await this.fetchWithDedup<ArtistData>(
+      `artist:${artistId}`,
+      `${API_BASE}/api/artist/${artistId}`
+    )
   }
 
-  async checkTrack(trackId: string): Promise<{
-    ai: boolean
-    score: number | null
-  } | null> {
-    const data = await this.fetchWithDedup<{
-      id: number
-      score: number | null
-    }>(`track:${trackId}`, `${API_BASE}/api/track/${trackId}`)
-
-    if (!data) return null
-
-    return {
-      ai: data.score !== null && data.score > 0.5,
-      score: data.score
-    }
+  async getTrack(trackId: string): Promise<TrackData | null> {
+    return await this.fetchWithDedup<TrackData>(
+      `track:${trackId}`,
+      `${API_BASE}/api/track/${trackId}`
+    )
   }
 
   async getHomeStats(): Promise<{

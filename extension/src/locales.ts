@@ -51,6 +51,12 @@ const messages: Record<Locale, Record<string, string>> = {
     enable_artist_labels_desc: 'Показывать метку «ИИ» рядом с именами артистов',
     enable_track_labels: 'Помечать ИИ-треки',
     enable_track_labels_desc: 'Показывать метку «ИИ» рядом с названиями треков',
+    use_slopless_labeling: 'Маркировка Slopless',
+    use_slopless_labeling_desc:
+      'Учитывать оценку Slopless при маркировке контента',
+    use_yandex_labeling: 'Маркировка Яндекс Музыки',
+    use_yandex_labeling_desc:
+      'Учитывать оценку Яндекс Музыки при маркировке контента',
     feedback_link: 'Сообщить об ошибке в маркировке',
 
     popup_title: 'Slopless'
@@ -107,6 +113,10 @@ const messages: Record<Locale, Record<string, string>> = {
     enable_artist_labels_desc: 'Show "AI" badge next to artist names',
     enable_track_labels: 'Label AI tracks',
     enable_track_labels_desc: 'Show "AI" badge next to track names',
+    use_slopless_labeling: 'Use Slopless labeling',
+    use_slopless_labeling_desc: 'Use Slopless data when labeling AI content',
+    use_yandex_labeling: 'Use Yandex Music labeling',
+    use_yandex_labeling_desc: 'Use Yandex Music data when labeling AI content',
     feedback_link: 'Report a labeling error',
 
     popup_title: 'Slopless'

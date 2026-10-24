@@ -3,7 +3,9 @@ import {
   extensionStorage,
   DEFAULT_LOCALE,
   DEFAULT_SHOW_ARTIST_LABELS,
-  DEFAULT_SHOW_TRACK_LABELS
+  DEFAULT_SHOW_TRACK_LABELS,
+  DEFAULT_USE_SLOPLESS_LABELING,
+  DEFAULT_USE_YANDEX_LABELING
 } from '@/storage'
 import type {
   ArtistVerifyRequest,
@@ -33,6 +35,8 @@ export default class AiLabelingService {
   protected locale: Locale = DEFAULT_LOCALE
   protected showArtistLabels = DEFAULT_SHOW_ARTIST_LABELS
   protected showTrackLabels = DEFAULT_SHOW_TRACK_LABELS
+  protected useSloplessLabeling = DEFAULT_USE_SLOPLESS_LABELING
+  protected useYandexLabeling = DEFAULT_USE_YANDEX_LABELING
 
   protected getArtist(element: HTMLAnchorElement): Artist {
     const artistHref = element.href
@@ -118,6 +122,11 @@ export default class AiLabelingService {
     artists: Artist[],
     verifyResult: ArtistVerifyResult[]
   ): void {
+    if (!this.useSloplessLabeling && !this.useYandexLabeling) {
+      this.clearAllLabels()
+      return
+    }
+
     if (!this.showArtistLabels) return
 
     const map = new Map<string, ArtistVerifyResult>()
@@ -150,6 +159,11 @@ export default class AiLabelingService {
     tracks: Track[],
     verifyResult: TrackVerifyResult[]
   ): void {
+    if (!this.useSloplessLabeling && !this.useYandexLabeling) {
+      this.clearAllLabels()
+      return
+    }
+
     if (!this.showTrackLabels) return
 
     const map = new Map<string, TrackVerifyResult>()
@@ -237,6 +251,8 @@ export default class AiLabelingService {
       let rescan = false
       const artistChange = changes['show-artist-labels']
       const trackChange = changes['show-track-labels']
+      const sloplessChange = changes['use-slopless-labeling']
+      const yandexChange = changes['use-yandex-labeling']
 
       if (artistChange) {
         this.showArtistLabels =
@@ -250,7 +266,24 @@ export default class AiLabelingService {
         rescan = true
       }
 
+      if (sloplessChange) {
+        this.useSloplessLabeling =
+          (sloplessChange.newValue as boolean) ?? DEFAULT_USE_SLOPLESS_LABELING
+        rescan = true
+      }
+
+      if (yandexChange) {
+        this.useYandexLabeling =
+          (yandexChange.newValue as boolean) ?? DEFAULT_USE_YANDEX_LABELING
+        rescan = true
+      }
+
       if (rescan) {
+        if (!this.useSloplessLabeling && !this.useYandexLabeling) {
+          this.clearAllLabels()
+          return
+        }
+
         this.clearAllLabels()
         void this.scan()
       }
@@ -266,6 +299,12 @@ export default class AiLabelingService {
 
     const showTrack = await extensionStorage.getItem('show-track-labels')
     this.showTrackLabels = showTrack ?? DEFAULT_SHOW_TRACK_LABELS
+
+    const useSlopless = await extensionStorage.getItem('use-slopless-labeling')
+    this.useSloplessLabeling = useSlopless ?? DEFAULT_USE_SLOPLESS_LABELING
+
+    const useYandex = await extensionStorage.getItem('use-yandex-labeling')
+    this.useYandexLabeling = useYandex ?? DEFAULT_USE_YANDEX_LABELING
 
     await this.scan()
     this.observe()
