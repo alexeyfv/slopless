@@ -14,6 +14,8 @@ export const DEFAULT_STRICT_TRACKS = false
 export const DEFAULT_LOCALE: Locale = 'ru'
 export const DEFAULT_SHOW_ARTIST_LABELS = true
 export const DEFAULT_SHOW_TRACK_LABELS = true
+export const DEFAULT_USE_SLOPLESS_LABELING = true
+export const DEFAULT_USE_YANDEX_LABELING = true
 
 export type ExtensionStorageSchema = {
   locale: Locale
@@ -21,6 +23,8 @@ export type ExtensionStorageSchema = {
   'ai-action-strict-tracks': boolean
   'show-artist-labels': boolean
   'show-track-labels': boolean
+  'use-slopless-labeling': boolean
+  'use-yandex-labeling': boolean
 }
 
 export const extensionStorage = defineExtensionStorage<ExtensionStorageSchema>(

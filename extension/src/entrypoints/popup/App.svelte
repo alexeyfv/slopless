@@ -7,6 +7,8 @@
     DEFAULT_LOCALE,
     DEFAULT_SHOW_ARTIST_LABELS,
     DEFAULT_SHOW_TRACK_LABELS,
+    DEFAULT_USE_SLOPLESS_LABELING,
+    DEFAULT_USE_YANDEX_LABELING,
     extensionStorage
   } from '../../storage'
   import type { AiMusicBehavior, Locale } from '../../storage'
@@ -17,6 +19,8 @@
   let locale: Locale = DEFAULT_LOCALE
   let showArtistLabels = DEFAULT_SHOW_ARTIST_LABELS
   let showTrackLabels = DEFAULT_SHOW_TRACK_LABELS
+  let useSloplessLabeling = DEFAULT_USE_SLOPLESS_LABELING
+  let useYandexLabeling = DEFAULT_USE_YANDEX_LABELING
   let dislikesUrl = 'https://music.yandex.com/collection/dislikes?tab=tracks'
 
   const resolveDislikesUrl = async () => {
@@ -84,6 +88,26 @@
     await extensionStorage.setItem('show-track-labels', value)
   }
 
+  const loadUseSloplessLabeling = async () => {
+    const saved = await extensionStorage.getItem('use-slopless-labeling')
+    useSloplessLabeling = saved ?? DEFAULT_USE_SLOPLESS_LABELING
+  }
+
+  const saveUseSloplessLabeling = async (value: boolean) => {
+    useSloplessLabeling = value
+    await extensionStorage.setItem('use-slopless-labeling', value)
+  }
+
+  const loadUseYandexLabeling = async () => {
+    const saved = await extensionStorage.getItem('use-yandex-labeling')
+    useYandexLabeling = saved ?? DEFAULT_USE_YANDEX_LABELING
+  }
+
+  const saveUseYandexLabeling = async (value: boolean) => {
+    useYandexLabeling = value
+    await extensionStorage.setItem('use-yandex-labeling', value)
+  }
+
   onMount(() => {
     void resolveDislikesUrl()
     void loadBehavior()
@@ -91,6 +115,8 @@
     void loadLocale()
     void loadShowArtistLabels()
     void loadShowTrackLabels()
+    void loadUseSloplessLabeling()
+    void loadUseYandexLabeling()
   })
 
   $: document.title = t(locale, 'popup_title')
@@ -221,6 +247,34 @@
     </Switch>
     <p class="text-xs opacity-50 -mt-2">
       {t(locale, 'enable_track_labels_desc')}
+    </p>
+
+    <Switch
+      checked={useSloplessLabeling}
+      onCheckedChange={details => saveUseSloplessLabeling(details.checked)}
+    >
+      <Switch.Control>
+        <Switch.Thumb />
+      </Switch.Control>
+      <Switch.Label>{t(locale, 'use_slopless_labeling')}</Switch.Label>
+      <Switch.HiddenInput />
+    </Switch>
+    <p class="text-xs opacity-50 -mt-2">
+      {t(locale, 'use_slopless_labeling_desc')}
+    </p>
+
+    <Switch
+      checked={useYandexLabeling}
+      onCheckedChange={details => saveUseYandexLabeling(details.checked)}
+    >
+      <Switch.Control>
+        <Switch.Thumb />
+      </Switch.Control>
+      <Switch.Label>{t(locale, 'use_yandex_labeling')}</Switch.Label>
+      <Switch.HiddenInput />
+    </Switch>
+    <p class="text-xs opacity-50 -mt-2">
+      {t(locale, 'use_yandex_labeling_desc')}
     </p>
   </form>
 

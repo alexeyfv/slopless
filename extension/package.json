@@ -18,31 +18,34 @@
     "lint": "pnpm check"
   },
   "devDependencies": {
-    "@skeletonlabs/skeleton": "^5.0.0",
-    "@skeletonlabs/skeleton-svelte": "^5.0.0",
+    "@skeletonlabs/skeleton": "^5.0.1",
+    "@skeletonlabs/skeleton-svelte": "^5.0.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tsconfig/svelte": "^5.0.8",
     "@wxt-dev/module-svelte": "^2.0.5",
-    "prettier": "^3.9.6",
-    "svelte": "^5.56.8",
-    "svelte-check": "^4.7.4",
+    "prettier": "^3.9.10",
+    "svelte": "^5.57.2",
+    "svelte-check": "^4.7.7",
     "typescript": "^6.0.3",
-    "wxt": "^0.21.3"
+    "vite": "^8.3.5",
+    "wxt": "^0.21.4"
   },
   "pnpm": {
     "overrides": {
       "shell-quote": ">=1.9.0",
       "tmp": ">=0.2.6",
       "adm-zip": ">=0.6.0",
-      "esbuild": ">=0.28.1"
+      "esbuild": ">=0.28.1",
+      "vite@>=8.0.0 <=8.1.5": ">=8.1.6",
+      "vite": ">=8.1.6"
     }
   },
   "dependencies": {
-    "@tabler/icons-svelte": "^3.46.0",
+    "@tabler/icons-svelte": "^3.49.0",
     "@tailwindcss/vite": "^4.3.3",
     "@webext-core/messaging": "^4.0.0",
     "@webext-core/storage": "^2.0.0",
-    "lru-cache": "11.5.2",
+    "lru-cache": "11.5.3",
     "tailwindcss": "^4.3.3"
   }
 }

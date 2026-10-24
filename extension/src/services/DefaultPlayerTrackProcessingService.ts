@@ -47,7 +47,8 @@ export default class DefaultPlayerTrackProcessingService {
       }
 
       const behavior =
-        (await extensionStorage.getItem('ai-music-behavior')) ?? DEFAULT_BEHAVIOR
+        (await extensionStorage.getItem('ai-music-behavior')) ??
+        DEFAULT_BEHAVIOR
 
       if (behavior === 'nothing') {
         return
