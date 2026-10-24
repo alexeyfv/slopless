@@ -4,6 +4,12 @@ description: Release history for the Slopless browser extension — new features
 
 # Releases
 
+## v0.3.3
+
+### New features
+
+- Added support for using Yandex Music's AI labels.
+
 ## v0.3.2
 
 ### New features
