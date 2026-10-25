@@ -114,7 +114,8 @@ export default defineConfig({
           { text: 'Yandex Music Stats', link: 'https://slopless.art' },
           { text: 'Releases', link: '/releases' },
           { text: 'FAQ', link: '/faq' },
-          { text: 'Privacy', link: '/privacy-policy' }
+          { text: 'Privacy', link: '/privacy-policy' },
+          { text: 'Support the project', link: '/support' }
         ]
       }
     },
@@ -129,7 +130,8 @@ export default defineConfig({
           { text: 'Статистика Яндекс Музыки', link: 'https://slopless.art' },
           { text: 'Релизы', link: '/ru/releases' },
           { text: 'FAQ', link: '/ru/faq' },
-          { text: 'Политика конфиденциальности', link: '/ru/privacy-policy' }
+          { text: 'Политика конфиденциальности', link: '/ru/privacy-policy' },
+          { text: 'Поддержать проект', link: '/ru/support' }
         ]
       }
     }

@@ -58,6 +58,7 @@ const messages: Record<Locale, Record<string, string>> = {
     use_yandex_labeling_desc:
       'Учитывать оценку Яндекс Музыки при маркировке контента',
     feedback_link: 'Сообщить об ошибке в маркировке',
+    donation_link: 'Поддержать проект',
 
     popup_title: 'Slopless'
   },
@@ -118,6 +119,7 @@ const messages: Record<Locale, Record<string, string>> = {
     use_yandex_labeling: 'Use Yandex Music labeling',
     use_yandex_labeling_desc: 'Use Yandex Music data when labeling AI content',
     feedback_link: 'Report a labeling error',
+    donation_link: 'Support the project',
 
     popup_title: 'Slopless'
   }

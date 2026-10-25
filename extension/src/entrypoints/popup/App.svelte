@@ -126,6 +126,16 @@
   <!-- Header -->
   <div class="flex items-center gap-2">
     <h1 class="h1 flex-1">Slopless</h1>
+    <a
+      href={locale === 'ru'
+        ? 'https://extension.slopless.art/ru/support'
+        : 'https://extension.slopless.art/support'}
+      target="_blank"
+      rel="noreferrer"
+      class="whitespace-nowrap hover:underline"
+    >
+      {t(locale, 'donation_link')}
+    </a>
     <div>
       <select
         class="select select-sm w-24"
@@ -279,13 +289,14 @@
   </form>
 
   <footer class="flex flex-col items-center gap-1 text-xs opacity-60">
-    <a
-      href="https://slopless.art"
-      target="_blank"
-      rel="noreferrer"
-      class="hover:underline text-sm">slopless.art</a
-    >
     <div class="flex gap-1">
+      <a
+        href="https://slopless.art"
+        target="_blank"
+        rel="noreferrer"
+        class="hover:underline">slopless.art</a
+      >
+      <span>&middot;</span>
       <a
         href="https://github.com/alexeyfv/slopless"
         target="_blank"
