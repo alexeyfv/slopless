@@ -4,6 +4,12 @@ description: Release history for the Slopless browser extension — new features
 
 # Releases
 
+## v0.3.4
+
+### New features
+
+- Added a link to the project support page in the extension.
+
 ## v0.3.3
 
 ### New features
